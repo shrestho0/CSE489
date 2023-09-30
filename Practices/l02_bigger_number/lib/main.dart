@@ -61,7 +61,8 @@ int getRandomNumber(int minNumber, int maxNumber) {
 
 class _MyGameState extends State<MyGame> {
   final title = "Bigger Number Game";
-  final description = "Some description about the game!!!";
+  final description =
+      "Welcome to the dumbest game ever created! Press the bigger number to get points. Nothing much.";
 
   var startChecking = false;
   var lastAnswerCorrect = false;
@@ -70,8 +71,8 @@ class _MyGameState extends State<MyGame> {
   int num2 = -1;
 
   void setNewRandomNumbers() {
-    num1 = getRandomNumber(69, 6969);
-    num2 = getRandomNumber(69, 6969);
+    num1 = getRandomNumber(1000, 10000);
+    num2 = getRandomNumber(1000, 10000);
   }
 
   void handleButtonPress(int bType) {
@@ -104,36 +105,40 @@ class _MyGameState extends State<MyGame> {
     setNewRandomNumbers();
     return Scaffold(
         body: Padding(
-      padding: EdgeInsets.only(top: 100, bottom: 100, left: 25, right: 25),
+      padding:
+          const EdgeInsets.only(top: 100, bottom: 100, left: 25, right: 25),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            color: Colors.grey[100],
             child: Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(8),
               child: Column(
                 children: [
-                  Text(
-                    "$title",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 10,
+                    ),
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
                     ),
                   ),
                   Text(
-                    '$description',
-                    style: TextStyle(
-                      fontSize: 15,
+                    description,
+                    style: const TextStyle(
+                      fontSize: 18,
                     ),
                   )
                 ],
               ),
             ),
           ),
-          Container(
-              child: Column(
+          Column(
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,20 +168,30 @@ class _MyGameState extends State<MyGame> {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.only(top: 20),
                 child: Text(
-                  "${startChecking ? lastAnswerCorrect : ''}",
+                  startChecking
+                      ? lastAnswerCorrect
+                          ? 'Correct'
+                          : 'Incorrect'
+                      : '',
                   style: TextStyle(
                     color: lastAnswerCorrect
                         ? Colors.greenAccent
                         : Colors.redAccent,
+                    fontSize: 18,
                   ),
                 ),
               ),
             ],
-          )),
+          ),
           Center(
-            child: Text("Points: $point"),
+            child: Text(
+              "Points: $point",
+              style: const TextStyle(
+                fontSize: 18,
+              ),
+            ),
           )
         ],
       ),
