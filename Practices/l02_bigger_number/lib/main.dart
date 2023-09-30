@@ -111,31 +111,29 @@ class _MyGameState extends State<MyGame> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 10,
-                    ),
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                      ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 10,
+                  ),
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
                     ),
                   ),
-                  Text(
-                    description,
-                    style: const TextStyle(
-                      fontSize: 18,
-                    ),
-                  )
-                ],
-              ),
+                ),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 18,
+                  ),
+                )
+              ],
             ),
           ),
           Column(
