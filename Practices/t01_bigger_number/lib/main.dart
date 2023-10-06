@@ -1,44 +1,6 @@
 import "dart:math";
 import 'package:flutter/material.dart';
 
-// void main() {
-//   return runApp(
-//     const MaterialApp(
-//       home: MyApp(),
-//       debugShowCheckedModeBanner: false,
-//     ),
-//   );
-// }
-
-// class MyApp extends StatefulWidget {
-//   const MyApp({super.key});
-//   @override
-//   State<MyApp> createState() => _MyAppState();
-// }
-
-// class _MyAppState extends State<MyApp> {
-//   int _count = 0;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("L01_Scaffold"),
-//         centerTitle: true,
-//       ),
-//       body: Center(
-//         child: Text("The Body! $_count"),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         child: const Text("click"),
-//         onPressed: () => setState(() {
-//           _count++;
-//         }),
-//       ),
-//     );
-//   }
-// }
-
 void main() {
   return runApp(
     const MaterialApp(
@@ -196,19 +158,3 @@ class _MyGameState extends State<MyGame> {
     ));
   }
 }
-
-/*
-Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [Container(child: Text("xx")), Text("yyyy"), Text("yyyy")],
-        ),
-
-Padding(
-          padding: EdgeInsets.only(top: 100, bottom: 100, left: 25, right: 25),
-          child: Column(
-            height: 100,
-            width: 100,
-            child: Text('xx'),
-          )),
-*/
