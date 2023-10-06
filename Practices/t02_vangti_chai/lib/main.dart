@@ -3,8 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:t02_vangti_chai/constants.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations(
-    [DeviceOrientation.landscapeLeft, DeviceOrientation.portraitUp],
+    [
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ],
   );
   runApp(const MyApp());
 }
@@ -70,7 +75,7 @@ class _TheVangtiChaiAppState extends State<TheVangtiChaiApp> {
   @override
   Widget build(BuildContext context) {
     Orientation orientation = MediaQuery.of(context).orientation;
-    const landscape = Orientation.landscape;
+    // const landscape = Orientation.landscape;
     const portrait = Orientation.portrait;
     List<Widget> numberButtonsWidgets = [];
 
