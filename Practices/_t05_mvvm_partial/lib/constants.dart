@@ -1,5 +1,5 @@
 class Constants {
-  static String appTitle = "Partial MVVM :3";
+  static String appTitle = "Partial MVVM";
 }
 
 const String USER_LIST = 'https://jsonplaceholder.typicode.com/users';
