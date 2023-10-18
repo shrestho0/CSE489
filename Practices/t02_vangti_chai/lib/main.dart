@@ -20,14 +20,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(useMaterial3: true),
+      theme: ThemeData(useMaterial3: AppConstants().themeUseMaterial3),
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.teal,
-          foregroundColor: Colors.white,
-          title: const Text(
-            "Vangti chai",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          backgroundColor: AppConstants().appBarBackgroundColor,
+          foregroundColor: AppConstants().appBarForegroundColor,
+          title: Text(
+            AppConstants().appBarTitle,
+            style: TextStyle(
+                fontSize: AppConstants().appBarTitleFontSize,
+                fontWeight: FontWeight.w500),
           ),
           centerTitle: true,
         ),
@@ -49,11 +51,10 @@ class TheVangtiChaiApp extends StatefulWidget {
 }
 
 class _TheVangtiChaiAppState extends State<TheVangtiChaiApp> {
-  final maxInteger = 9.0071993e+15;
   int taka = 0;
 
   void handleTakaAmountChange([int amount = 0, int inputType = 0]) {
-    if (taka > maxInteger) {
+    if (taka > AppConstants().maxInteger) {
       setState(() {
         taka = 0;
       });
@@ -92,23 +93,23 @@ class _TheVangtiChaiAppState extends State<TheVangtiChaiApp> {
       ));
     }
 
-    List<int> xCoins = calculateCoinCount(AppConstant().takaTypes, taka);
+    List<int> xCoins = calculateCoinCount(AppConstants().takaTypes, taka);
     List<Widget> xVangtiWidgets =
-        buildtakaTypeAndCount(AppConstant().takaTypes, xCoins);
+        buildtakaTypeAndCount(AppConstants().takaTypes, xCoins);
     // print("Taka: $taka, $xCoins");
 
     return Column(
       children: [
-        Container(
-          height: 40,
+        SizedBox(
+          height: AppConstants().takaAmountContainerHeight,
           width: MediaQuery.of(context).size.width,
           // color: Colors.deepPurpleAccent,
           child: Center(
             child: Text(
               taka == 0 ? 'Vangti Nai' : "Taka: $taka",
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 20,
+              style: TextStyle(
+                fontWeight: AppConstants().takaAmountFontWeight,
+                fontSize: AppConstants().takaAmountFontSize,
               ),
             ),
           ),
@@ -124,8 +125,10 @@ class _TheVangtiChaiAppState extends State<TheVangtiChaiApp> {
             children: [
               SizedBox(
                 width: orientation == portrait
-                    ? MediaQuery.of(context).size.width * 0.33
-                    : MediaQuery.of(context).size.width * 0.67,
+                    ? MediaQuery.of(context).size.width *
+                        AppConstants().portraitRelativeSizeLeft
+                    : MediaQuery.of(context).size.width *
+                        AppConstants().portraitRelativeSizeRight,
                 child: Container(
                   // color: Colors.tealAccent,
                   alignment: Alignment.center,
@@ -159,12 +162,15 @@ class _TheVangtiChaiAppState extends State<TheVangtiChaiApp> {
               SizedBox(
                 // height: MediaQuery.of(context).size.height - 120,
                 width: orientation == portrait
-                    ? MediaQuery.of(context).size.width * 0.67
-                    : MediaQuery.of(context).size.width * 0.33,
+                    ? MediaQuery.of(context).size.width *
+                        AppConstants().portraitRelativeSizeRight
+                    : MediaQuery.of(context).size.width *
+                        AppConstants().portraitRelativeSizeLeft,
                 child: Container(
                   // height: 500,
                   alignment: Alignment.center,
-                  padding: EdgeInsets.all(10),
+                  padding:
+                      EdgeInsets.all(AppConstants().inputButtonCommonPadding),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -186,7 +192,10 @@ class _TheVangtiChaiAppState extends State<TheVangtiChaiApp> {
                             numberButtonsWidgets[9],
                             Expanded(
                               child: Padding(
-                                padding: EdgeInsets.only(left: 10),
+                                padding: EdgeInsets.only(
+                                    left: AppConstants().clearButtonPaddingLeft,
+                                    right:
+                                        AppConstants().clearButtonPaddingRight),
                                 child: numberButtonsWidgets[10],
                               ),
                             )
@@ -231,13 +240,17 @@ List<Widget> buildtakaTypeAndCount(List takaTypesX, List takaCountsX) {
   for (var i = 0; i < takaTypesX.length; i++) {
     Widget X = Container(
       alignment: Alignment.centerRight,
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+      padding: EdgeInsets.symmetric(
+          vertical: AppConstants().vangtiCountPaddingVertical,
+          horizontal: AppConstants().vangtiCountPaddingHorizontal),
       // child:
       //   Center(
       child: Text(
         "${takaTypesX[i]}: ${takaCountsX[i]}",
         // textAlign: TextAlign.right,
-        style: TextStyle(fontSize: 17, fontWeight: FontWeight.normal),
+        style: TextStyle(
+            fontSize: AppConstants().vangtiCountFontSize,
+            fontWeight: AppConstants().vangtiCountFontWeight),
         // ),
       ),
     );
