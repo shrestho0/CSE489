@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Constants {
   static List<String> xRoutes = ["/", "/custom", "/wifi", "/battery"];
   static List<String> xRouteTitles = [
-    "Broadcase489",
+    "Broadcast489",
     "Custom Broadcast",
     "Wi-Fi State Change",
     "Battery Percentage "

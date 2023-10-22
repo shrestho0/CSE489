@@ -1,13 +1,10 @@
 import 'dart:async';
 
 import 'package:battery_info/battery_info_plugin.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:l08_broadcast_stuff/constants.dart';
-// import 'package:battery_info/battery_info_plugin.dart';
-// import 'package:battery_info/battery_info_plugin.dart';
-import 'package:battery_info/model/android_battery_info.dart';
+// import 'package:battery_info/model/android_battery_info.dart';
 
 class BatteryPercentagePage extends StatefulWidget {
   const BatteryPercentagePage({super.key, required this.title});
@@ -132,7 +129,13 @@ class _BatteryPercentagePageState extends State<BatteryPercentagePage> {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       child: OutlinedButton(
                         onPressed: () {
-                          int rawGuessVal = int.parse(userInputController.text);
+                          late int rawGuessVal;
+                          try {
+                            rawGuessVal = int.parse(userInputController.text);
+                          } catch (_) {
+                            rawGuessVal = -1;
+                          }
+
                           if (rawGuessVal >= 0 && rawGuessVal <= 100) {
                             print("Raw: Y $rawGuessVal");
                             setState(() {
@@ -187,13 +190,17 @@ class BatteryQuizResultPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: Constants.customAppBar("Battery Quiz Result"),
-      body: Center(
-          child: Container(
-        child: Column(children: [
-          Text("Your Guess % : $guessPct"),
-          Text("Actual Battery % : $batteryPct"),
-        ]),
-      )),
+      body: Container(
+        alignment: Alignment.center,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Your Guess % : $guessPct"),
+            Text("Actual Battery % : $batteryPct"),
+          ],
+        ),
+      ),
     );
   }
 }
