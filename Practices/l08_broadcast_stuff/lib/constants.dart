@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Constants {
+  static const androidPackageName = "me.shrestho.l08_broadcast_stuff";
   static List<String> xRoutes = ["/", "/custom", "/wifi", "/battery"];
   static List<String> xRouteTitles = [
     "Broadcast489",

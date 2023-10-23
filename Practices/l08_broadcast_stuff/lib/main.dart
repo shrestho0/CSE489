@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:l08_broadcast_stuff/constants.dart';
 import 'package:l08_broadcast_stuff/pages/battery_page.dart';
+import 'package:l08_broadcast_stuff/pages/custom_broadcast.dart';
 import 'package:l08_broadcast_stuff/pages/wifi_page.dart';
 
 void main() async {
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
           Constants.xRoutes[0]: (context) =>
               MyHomePage(title: Constants.xRouteTitles[0]),
           Constants.xRoutes[1]: (context) =>
-              UstaderPlaceholder(title: Constants.xRouteTitles[1]),
+              CustomBroadcastPage(title: Constants.xRouteTitles[1]),
           Constants.xRoutes[2]: (context) =>
               WifiStatusPage(title: Constants.xRouteTitles[2]),
           Constants.xRoutes[3]: (context) =>
