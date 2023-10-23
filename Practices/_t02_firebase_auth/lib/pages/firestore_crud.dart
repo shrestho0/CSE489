@@ -9,9 +9,8 @@ class FireStoreCrudPage extends StatefulWidget {
   State<FireStoreCrudPage> createState() => _FireStoreCrudPageState();
 }
 
-FirebaseFirestore firestore = FirebaseFirestore.instance;
-
 class _FireStoreCrudPageState extends State<FireStoreCrudPage> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   final userNameController = TextEditingController();
 
   CollectionReference users = FirebaseFirestore.instance.collection('_t02');
