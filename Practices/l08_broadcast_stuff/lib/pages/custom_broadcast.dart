@@ -63,13 +63,13 @@ class _CustomBroadcastPageState extends State<CustomBroadcastPage> {
   void handleNextPress() {
     if (!userCanSubmit) return;
     print("Sending message to Broadcast Receiver: ${userInputController.text}");
-    FBroadcast.instance().broadcast(
-      /// message type
-      "the_holy_broadcast",
+    // FBroadcast.instance().broadcast(
+    //   /// message type
+    //   "the_holy_broadcast",
 
-      /// data
-      value: userInputController.text,
-    );
+    //   /// data
+    //   value: userInputController.text,
+    // );
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -77,6 +77,14 @@ class _CustomBroadcastPageState extends State<CustomBroadcastPage> {
             TheHolyBroadcastReceiver(message: userInputController.text),
       ),
     );
+
+    /// To Broadcast from Parent Activity
+    // Timer(const Duration(milliseconds: 100), () {
+    //   print("\n\n\n\nSending Data to next page with broadcast\n\n\n\n");
+
+    //   FBroadcast.instance()
+    //       .broadcast("the_holy_broadcast", value: userInputController.text);
+    // });
   }
 
   @override
@@ -155,10 +163,12 @@ class _TheHolyBroadcastReceiverState extends State<TheHolyBroadcastReceiver> {
 
   @override
   void initState() {
+    super.initState();
+
     // Subscribing (Register) to the broadcast
     FBroadcast.instance().register("the_holy_broadcast", (value, callback) {
       /// do something
-      print("Received something on the_holy_broadcast $value");
+      print("XDEBUG: Received something on the_holy_broadcast $value");
       setState(() {
         theHolyMessage = value;
       });
@@ -166,8 +176,6 @@ class _TheHolyBroadcastReceiverState extends State<TheHolyBroadcastReceiver> {
 
     // Broadcasting the message from previous activity for the first time
     performHolyBroadcast(widget.message);
-
-    super.initState();
   }
 
   @override
@@ -204,17 +212,27 @@ class _TheHolyBroadcastReceiverState extends State<TheHolyBroadcastReceiver> {
           ),
           Container(
             alignment: Alignment.center,
-            color: Colors.amber[100],
+            // color: Colors.amber[100],
+            height: 200,
+            // padding: EdgeInsets.all(20),
+            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(10),
+
+            decoration: BoxDecoration(
+                color: Colors.amber[100],
+                border: Border.all(),
+                borderRadius: BorderRadius.circular(20)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
                   "Received Data from Broadcast",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 Text(
                   "Received Message: $theHolyMessage",
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),

@@ -161,8 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
-            Text(
-                "${showCantProccedMsg ? 'you must select one to proceed' : ''}"),
+            Text(showCantProccedMsg ? "you must select one to proceed" : " "),
           ],
         ),
       ),
