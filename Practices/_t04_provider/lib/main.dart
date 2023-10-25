@@ -62,9 +62,6 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Text("${context.watch<CountNotifier>().val}"),
             Text(context.watch<SomeProvider>().someVal),
-            const Text(
-              'You have pushed the button this many times:',
-            ),
             TextField(
               controller: someValController,
             ),
