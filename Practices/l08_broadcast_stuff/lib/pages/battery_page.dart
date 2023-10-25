@@ -14,67 +14,12 @@ class BatteryPercentagePage extends StatefulWidget {
   State<BatteryPercentagePage> createState() => _BatteryPercentagePageState();
 }
 
-// class NumberCreator {
-//   NumberCreator([this.until = 69]) {
-//     Timer.periodic(const Duration(seconds: 1), (t) {
-//       if (_count == until) {
-//         _controller.close();
-//         return;
-//       }
-//       _controller.sink.add(_count);
-//       _count++;
-//     });
-//   }
-//   var _count = 1;
-//   final int until;
-//   final _controller = StreamController<int>();
-
-//   Stream<int> get stream => _controller.stream;
-// }
-
 class _BatteryPercentagePageState extends State<BatteryPercentagePage> {
   // late BatteryState _batteryState;
-  StreamSubscription? _batSub;
-  int? batteryPct;
+
   int? guessPct;
   final userInputController = TextEditingController();
   bool showErrorMsg = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _batSub = BatteryInfoPlugin().androidBatteryInfoStream.listen((event) {
-      setState(() {
-        batteryPct = event?.batteryLevel;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _batSub?.cancel();
-    super.dispose();
-  }
-
-  // void updateState(BatteryState bstate) {
-  //   print("Battery State on UpSt$bstate");
-  //   setState(() {
-  //     _batteryState = bstate;
-  //   });
-  // }
-  // StreamBuilder(
-  //     stream: NumberCreator(5).stream,
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return Text("Waiting...");
-  //       } else if (snapshot.connectionState ==
-  //           ConnectionState.active) {
-  //         return Text("Snapshot Data: ${snapshot.data}");
-  //       } else {
-  //         return Text("![Done or Error]!");
-  //       }
-  //     })
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +38,9 @@ class _BatteryPercentagePageState extends State<BatteryPercentagePage> {
                 // child: Text("${widget.title}"),
                 child: Column(
                   children: [
-                    Container(
-                      child: Text("DEBUG: Battery Pct: $batteryPct"),
-                    ),
+                    // Container(
+                    //   child: Text("DEBUG: Battery Pct: $batteryPct"),
+                    // ),
                     TextField(
                       controller: userInputController,
                       keyboardType: TextInputType.number,
@@ -142,13 +87,12 @@ class _BatteryPercentagePageState extends State<BatteryPercentagePage> {
                               guessPct = rawGuessVal;
                               showErrorMsg = false;
                             });
-                            if (batteryPct != null && guessPct != null) {
+                            if (guessPct != null) {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          BatteryQuizResultPage(
-                                              batteryPct!, guessPct!)));
+                                          BatteryQuizResultPage(guessPct!)));
                             }
                             // procceed to next page;
                           } else {
@@ -180,24 +124,68 @@ class _BatteryPercentagePageState extends State<BatteryPercentagePage> {
   }
 }
 
-class BatteryQuizResultPage extends StatelessWidget {
-  const BatteryQuizResultPage(this.batteryPct, this.guessPct, {super.key});
+class BatteryQuizResultPage extends StatefulWidget {
+  const BatteryQuizResultPage(this.guessPct, {super.key});
 
-  final int batteryPct;
   final int guessPct;
+
+  @override
+  State<BatteryQuizResultPage> createState() => _BatteryQuizResultPageState();
+}
+
+class _BatteryQuizResultPageState extends State<BatteryQuizResultPage> {
+  StreamSubscription? _batSub;
+  int? batteryPct;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _batSub = BatteryInfoPlugin().androidBatteryInfoStream.listen((event) {
+      setState(() {
+        batteryPct = event?.batteryLevel as int;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _batSub?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Constants.customAppBar("Battery Quiz Result"),
+      appBar: Constants.customAppBar("Battery Test"),
       body: Container(
         alignment: Alignment.center,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Your Guess % : $guessPct"),
-            Text("Actual Battery % : $batteryPct"),
+            Text("Your Guess % : ${widget.guessPct}"),
+            Text("Actual Battery % : ${batteryPct!}"),
+            Container(
+              margin: EdgeInsets.symmetric(
+                vertical: 10,
+              ),
+              padding: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                border: Border.all(),
+              ),
+              child: widget.guessPct == batteryPct
+                  ? Text(
+                      "You guessed it right!",
+                      style: TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.normal),
+                    )
+                  : Text(
+                      "Wrong guess",
+                      style: TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.normal),
+                    ),
+            ),
           ],
         ),
       ),
