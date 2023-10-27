@@ -16,6 +16,9 @@ A online tictactoe game.
 - Else the user receives a message that no one is online to play a sad meme is shown to the user.
 
 *The Game*
+- If one any of the players leaves the game or waits for too long, the other player wins
+- Threshold max input time will be 1 minute each
+- Users can re-match or end the session
 
 #### Features:
 
@@ -35,7 +38,7 @@ A online tictactoe game.
 ##### Progress Tracker
 - [-] Completion of learning stuff  [ 2/4 ]
 - [-] Raw Planning
-- [] Wireframe Diagram
+- [-] Wireframe Diagram
 - [] Schema 
 - [] Project Skeleton + Proof of concept
 - [] Features:
