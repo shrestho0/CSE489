@@ -1,0 +1,1 @@
+enum InputStates { ADD, EDIT }
