@@ -82,6 +82,9 @@ class _PersonViewState extends State<PersonView> {
                     );
                 updateFlag = false;
                 personToUpdate = null;
+
+                theController.clear();
+                anotherController.clear();
               } else {
                 print("trying to add");
                 context.read<PersonViewModel>().addPerson(
