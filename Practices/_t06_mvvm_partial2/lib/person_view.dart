@@ -18,6 +18,17 @@ class _PersonViewState extends State<PersonView> {
   bool updateFlag = false;
   Person? personToUpdate;
   InputStates inputState = InputStates.ADD;
+  FocusNode focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    theController.clear();
+    anotherController.clear();
+    focusNode.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +39,7 @@ class _PersonViewState extends State<PersonView> {
       anotherController.text = person.age.toString();
       personToUpdate = person;
       updateFlag = true;
+      focusNode.requestFocus();
     }
 
     print(theViewModelEvent);
@@ -48,6 +60,7 @@ class _PersonViewState extends State<PersonView> {
               children: [
                 TextField(
                   controller: theController,
+                  focusNode: focusNode,
                 ),
                 TextField(
                   controller: anotherController,
@@ -110,24 +123,53 @@ Widget thePersonListUI(PersonViewModel personVM, Function updateCallBack) {
     return ListView.builder(
       itemBuilder: (context, index) {
         return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(personList[index].name),
-            Text("${personList[index].age}"),
-            ElevatedButton(
-              onPressed: () {
-                // print("delete item with index $index");
-                context.read<PersonViewModel>().removePerson(personList[index]);
-              },
-              child: Icon(Icons.delete),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.symmetric(vertical: 10),
+                color: Colors.red[50],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      personList[index].name,
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                    Text(
+                      "${personList[index].age}",
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                print("update item with index $index");
-                updateCallBack(personList[index]);
-              },
-              child: Icon(Icons.settings_sharp),
-            )
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // print("delete item with index $index");
+                    context
+                        .read<PersonViewModel>()
+                        .removePerson(personList[index]);
+                  },
+                  child: Icon(Icons.delete),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    print("update item with index $index");
+                    updateCallBack(personList[index]);
+                  },
+                  child: Icon(Icons.settings_sharp),
+                )
+              ],
+            ),
           ],
         );
       },
