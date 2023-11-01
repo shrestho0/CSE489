@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:football_score/constants.dart';
 import 'package:football_score/football_score/model/football_model.dart';
@@ -53,7 +52,6 @@ class Failure {
 enum ResponseErrorCodes {
   INVALID_RESPONSE,
   NO_INTERNET,
-
   INVALID_FORMAT,
   UNKNOWN_ERROR
 }
