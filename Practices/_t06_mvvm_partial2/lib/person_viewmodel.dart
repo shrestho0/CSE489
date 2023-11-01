@@ -2,7 +2,7 @@ import 'package:_t06_mvvm_partial2/person_model.dart';
 import 'package:flutter/material.dart';
 
 class PersonViewModel extends ChangeNotifier {
-  final List<Person> _personList = [];
+  final List<Person> _personList = []; // ??
 
   /// maybe a bad choise
   bool _loading = false;
