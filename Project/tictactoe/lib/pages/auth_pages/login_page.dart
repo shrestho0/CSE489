@@ -1,7 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tictactoe/services/auth_services.dart';
 import 'package:tictactoe/utils/Utils.dart';
+
+enum PreLoginStates { Nothing, AwaitLogin, Loading, Error }
+
+enum PreLoginTypes { Nothing, EmailLogin, GoogleLogin }
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -16,47 +21,58 @@ class _LoginPageState extends State<LoginPage> {
 
   final passwordInputController = TextEditingController();
 
-  void customDialogueWithMessage(String message) {
-    //
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(message),
-          );
-        });
+  bool showEmailPasswordInput = false;
+
+  PreLoginStates preLoginState = PreLoginStates.Nothing;
+  PreLoginTypes preLoginTypes = PreLoginTypes.Nothing;
+
+  String errorMessage = "";
+
+  void setLoginError(String msg) {
+    preLoginState = PreLoginStates.Error;
+    setState(() {
+      errorMessage = msg;
+    });
   }
 
   void handleSignIn({bool google = false}) async {
-    // dialogue
+    setState(() {
+      preLoginState = PreLoginStates.Loading;
+      preLoginTypes =
+          google ? PreLoginTypes.GoogleLogin : PreLoginTypes.EmailLogin;
+      errorMessage = "";
+    });
 
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        });
+    if (google) {
+      // d
+
+      await AuthServices().signInWithGoogle();
+    }
+
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailInputController.text,
         password: passwordInputController.text,
       );
+      setState(() {
+        preLoginState = PreLoginStates.Nothing;
+        errorMessage = "";
+      });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        customDialogueWithMessage("User not found.");
+        setLoginError("User not found.");
       } else if (e.code == 'wrong-password') {
-        customDialogueWithMessage("Wrong password");
+        setLoginError("Wrong password");
       } else if (e.code == "channel-error") {
-        customDialogueWithMessage("channel-error");
+        setLoginError("channel-error");
       } else {
-        customDialogueWithMessage(e.code);
+        setLoginError(e.code);
       }
     } catch (e) {
       print("error catch korte parini");
       // fuck it
     }
-    Navigator.pop(context);
+    // Navigator.pop(context);
 
     // no dialogue
   }
@@ -70,6 +86,9 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // TODO: COMMENT after debugging
+          Text("${preLoginState} ${preLoginTypes}"),
+          // TODO: UNCOMMENT after debugging
           const Text(
             "`tictactoe`",
             style: TextStyle(
@@ -96,70 +115,87 @@ class _LoginPageState extends State<LoginPage> {
           someFreeSpace(height: 20),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: TextField(
-                    controller: emailInputController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Email',
-                      hintText: 'Enter Email',
-                    ),
+            child: preLoginTypes == PreLoginTypes.Nothing
+                ? null
+                : Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: TextField(
+                          controller: emailInputController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Email',
+                            hintText: 'Enter Email',
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: TextField(
+                          controller: passwordInputController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Password',
+                            hintText: 'Enter Password',
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () =>
+                            {Navigator.pushNamed(context, "/forgot-password")},
+                        child: Container(
+                          alignment: Alignment.topRight,
+                          child: const Text("Forgot password?"),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: TextField(
-                    controller: passwordInputController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Password',
-                      hintText: 'Enter Password',
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () =>
-                      {Navigator.pushNamed(context, "/forgot-password")},
-                  child: Container(
-                    alignment: Alignment.topRight,
-                    child: const Text("Forgot password?"),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: OutlinedButton(
-                    onPressed: handleSignIn,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                      backgroundColor: Colors.black87,
-                      foregroundColor: Colors.white,
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                        Radius.circular(5),
-                      )),
-                    ),
-                    child: const Text("Sing In"),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Flexible(
-            child: Text(
-              "or",
-              textAlign: TextAlign.center,
-            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             child: Column(
               children: [
+                // Container(
+                //   padding: const EdgeInsets.symmetric(vertical: 10),
+                //   child: OutlinedButton(
+                //     onPressed: handleSignIn,
+                //     style: OutlinedButton.styleFrom(
+                //       minimumSize: const Size.fromHeight(50),
+                //       backgroundColor: Colors.black87,
+                //       foregroundColor: Colors.white,
+                //       shape: const RoundedRectangleBorder(
+                //           borderRadius: BorderRadius.all(
+                //         Radius.circular(5),
+                //       )),
+                //     ),
+                //     child: const Text("Login in with email"),
+                //   ),
+                // ),
                 Container(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
                   child: OutlinedButton(
-                    onPressed: () => AuthServices().signInWithGoogle(),
+                    onPressed: () {
+                      setState(() {
+                        if (preLoginState == PreLoginStates.Nothing &&
+                            preLoginTypes == PreLoginTypes.Nothing) {
+                          setState(() {
+                            preLoginTypes = PreLoginTypes.EmailLogin;
+                            preLoginState = PreLoginStates.AwaitLogin;
+                          });
+                        } else if (preLoginState == PreLoginStates.AwaitLogin &&
+                            preLoginTypes == PreLoginTypes.EmailLogin) {
+                          handleSignIn();
+                        }
+                      });
+                      // if (showEmailPasswordInput == true) {
+                      //   handleSignIn();
+                      // } else {
+                      //   setState(() {
+                      //     showEmailPasswordInput = true;
+                      //   });
+                      // }
+                    },
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                       backgroundColor: Colors.black87,
@@ -172,34 +208,143 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image(
-                          image: AssetImage('assets/google_icon.png'),
-                          height: 20,
-                          width: 20,
-                        ),
-                        const Text("Sign In/Up With Google"),
+                        // Image(
+                        //   image: AssetImage('assets/google_icon.png'),
+                        //   height: 20,
+                        //   width: 20,
+                        // ),
+                        Icon(Icons.login),
+                        (preLoginState == PreLoginStates.Loading)
+                            ? Text(" Signing in... ")
+                            : Text("  Login with email  "),
                       ],
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pushNamed(context, "/register"),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                      backgroundColor: Colors.black87,
-                      foregroundColor: Colors.white,
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                        Radius.circular(5),
-                      )),
-                    ),
-                    child: const Text("Sign Up with email"),
-                  ),
-                ),
+                !(preLoginState == PreLoginStates.AwaitLogin)
+                    ? someFreeSpace(height: 2)
+                    : Container(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            setState(() {
+                              preLoginState = PreLoginStates.Nothing;
+                              preLoginTypes = PreLoginTypes.Nothing;
+                            });
+                          },
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(50),
+                            backgroundColor: Colors.black87,
+                            foregroundColor: Colors.white,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(5),
+                              ),
+                            ),
+                          ),
+                          child: const Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Image(
+                              //   image: AssetImage('assets/google_icon.png'),
+                              //   height: 20,
+                              //   width: 20,
+                              // ),
+                              Icon(Icons.arrow_back),
+                              Text(" Back to other options "),
+                            ],
+                          ),
+                        ),
+                      ),
+                !(preLoginTypes == PreLoginTypes.Nothing)
+                    ? someFreeSpace(height: 2)
+                    : Container(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: OutlinedButton(
+                          onPressed: () =>
+                              Navigator.pushNamed(context, "/register"),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(50),
+                            backgroundColor: Colors.black87,
+                            foregroundColor: Colors.white,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(5),
+                              ),
+                            ),
+                          ),
+                          child: const Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Image(
+                              //   image: AssetImage('assets/google_icon.png'),
+                              //   height: 20,
+                              //   width: 20,
+                              // ),
+                              Icon(Icons.person_add),
+                              Text(" Register with email "),
+                            ],
+                          ),
+                        ),
+                      ),
+                // Container(
+                //   padding: const EdgeInsets.symmetric(vertical: 5),
+                //   child: OutlinedButton(
+                //     onPressed: () => Navigator.pushNamed(context, "/register"),
+                //     style: OutlinedButton.styleFrom(
+                //       minimumSize: const Size.fromHeight(50),
+                //       backgroundColor: Colors.black87,
+                //       foregroundColor: Colors.white,
+                //       shape: const RoundedRectangleBorder(
+                //           borderRadius: BorderRadius.all(
+                //         Radius.circular(5),
+                //       )),
+                //     ),
+                //     child: const Text("Sign Up with email"),
+                //   ),
+                // ),
+                ////
+                (preLoginState == PreLoginStates.Nothing ||
+                        preLoginTypes == PreLoginTypes.GoogleLogin)
+                    ? const Text("==== or ====")
+                    : someFreeSpace(height: 2),
+                (preLoginState == PreLoginStates.Nothing ||
+                        preLoginTypes == PreLoginTypes.GoogleLogin)
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: OutlinedButton(
+                          onPressed: () => handleSignIn(google: true),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(50),
+                            backgroundColor: Colors.black87,
+                            foregroundColor: Colors.white,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(5),
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Image(
+                                image: AssetImage('assets/google_icon.png'),
+                                height: 20,
+                                width: 20,
+                              ),
+                              (preLoginState == PreLoginStates.Loading)
+                                  ? const Text(" Signing in... ")
+                                  : const Text(" Authenticate With Google"),
+                            ],
+                          ),
+                        ),
+                      )
+                    : someFreeSpace(height: 2)
               ],
             ),
           ),
