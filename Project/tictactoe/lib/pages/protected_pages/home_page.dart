@@ -18,13 +18,9 @@ class HomePage extends StatelessWidget {
             // Text("${user?.displayName}"),
             // Text("${user?.email}"),
             Text(user.toString()),
-            SizedBox(
-              height: 100,
-              width: 100,
-            ),
 
             // Text("hello fucking world!"),
-            OutlinedButton(onPressed: signOut, child: Text("sign out")),
+            const OutlinedButton(onPressed: signOut, child: Text("sign out")),
             ClipOval(
               child: user?.photoURL != null
                   ? Image.network(
@@ -32,7 +28,7 @@ class HomePage extends StatelessWidget {
                       height: 50,
                       width: 50,
                     )
-                  : Icon(
+                  : const Icon(
                       Icons.person,
                       color: Colors.redAccent,
                     ),

@@ -68,25 +68,22 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-      - lib/assets/
+      - assets/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+ 
+  fonts:
+    - family: Arcade
+      fonts:
+        - asset: assets/fonts/ARCADECLASSIC.ttf
 
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware
+    - family: IBMPlexMono
+      fonts:
+        - asset: assets/fonts/IBMPlexMono-Regular.ttf
+        - asset: assets/fonts/IBMPlexMono-Italic.ttf
+          style: italic
 
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
 
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
