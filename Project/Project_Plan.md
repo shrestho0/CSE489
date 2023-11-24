@@ -6,6 +6,14 @@
 
 A online tictactoe game.
 
+
+### Issues && Possible Fixes
+- Issue: User profile image
+- - Fix: Upload to bucket, save to users profile object and whatever.
+- Issue: Check if user online or not
+- - Fix: Check !g
+
+
 *First time user*:
 - User get a splash screen.
 - A login/register screen.
@@ -33,7 +41,7 @@ A online tictactoe game.
 #### To learn before starting ->
 - [-] User authentication
 - [-] State management using provider 
-- [] MVVM Architectural Pattern
+- [-] MVVM Architectural Pattern
 - [] Firebase Notification
 - 
 

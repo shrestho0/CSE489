@@ -8,17 +8,22 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
-
+    print("${user}");
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("${user?.displayName}"),
-            Text("${user?.email}"),
-            Text("${user}"),
-            Text("hello fucking world!"),
+            // Text("${user?.displayName}"),
+            // Text("${user?.email}"),
+            Text(user.toString()),
+            SizedBox(
+              height: 100,
+              width: 100,
+            ),
+
+            // Text("hello fucking world!"),
             OutlinedButton(onPressed: signOut, child: Text("sign out")),
             ClipOval(
               child: user?.photoURL != null
