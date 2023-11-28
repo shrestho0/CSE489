@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
     // );
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(backgroundColor: Colors.white),
       body: Container(
         padding: const EdgeInsets.only(bottom: 180),
         child: Flex(

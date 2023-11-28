@@ -61,13 +61,14 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                       hintText: "Enter Email",
                     ),
                     commonTextInputs(
-                      theController: passwordInputController,
-                      labelText: "Password",
-                      hintText: "Enter Password",
-                    ),
+                        theController: passwordInputController,
+                        labelText: "Password",
+                        hintText: "Enter Password",
+                        obscureText: true),
                     GestureDetector(
-                      onTap: () =>
-                          {Navigator.pushNamed(context, "/forgot-password")},
+                      onTap: () => {
+                        Navigator.pushNamed(context, "/forgot-password"),
+                      },
                       child: Container(
                         alignment: Alignment.topRight,
                         child: const Text("Forgot password?"),
@@ -106,7 +107,10 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                     someFreeSpace(height: 10, flexible: false),
                     commonOutlineButton(
                       text: "Back to other options",
-                      onPressed: () => {Navigator.pushNamed(context, "/")},
+                      onPressed: () => {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, '/', (route) => false)
+                      },
                       icon: Icon(Icons.chevron_left),
                     ),
                   ],

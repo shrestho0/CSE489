@@ -2,15 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
-class ReMatchOrEndSessionPage extends StatefulWidget {
-  const ReMatchOrEndSessionPage({super.key});
+class PostGamePage extends StatefulWidget {
+  const PostGamePage({super.key});
 
   @override
-  State<ReMatchOrEndSessionPage> createState() =>
-      _ReMatchOrEndSessionPageState();
+  State<PostGamePage> createState() => _PostGamePageState();
 }
 
-class _ReMatchOrEndSessionPageState extends State<ReMatchOrEndSessionPage> {
+class _PostGamePageState extends State<PostGamePage> {
   User? user = FirebaseAuth.instance.currentUser;
 
   @override

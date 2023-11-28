@@ -18,7 +18,7 @@ class _ConfirmMatchPageState extends State<ConfirmMatchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: commonProtectedAppbar(
-            title: "The Game Page",
+            title: "Ready to play!",
             context: context,
             user: user,
             leading: false),
