@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:tictactoe/services/auth_services.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class LoginWithPassword extends StatefulWidget {
+  const LoginWithPassword({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<LoginWithPassword> createState() => _LoginWithPasswordState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _LoginWithPasswordState extends State<LoginWithPassword> {
   //   // Input controllers
   final emailInputController = TextEditingController();
 
   final passwordInputController = TextEditingController();
-  final password2InputController = TextEditingController();
 
   bool hasError = false;
   String errorMessage = "";
@@ -24,13 +23,6 @@ class _RegisterPageState extends State<RegisterPage> {
     emailInputController.dispose();
     passwordInputController.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    errorMessage = "";
   }
 
   @override
@@ -57,7 +49,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
 // page title
-              authPageTitle("Register"),
+              authPageTitle("Login"),
               someFreeSpace(height: 10.0, flexible: false),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -67,23 +59,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       theController: emailInputController,
                       labelText: "Email",
                       hintText: "Enter Email",
-                      onChanged: clearError,
                     ),
                     commonTextInputs(
                       theController: passwordInputController,
                       labelText: "Password",
                       hintText: "Enter Password",
-                      obscureText: true,
-                      onChanged: clearError,
                     ),
-                    commonTextInputs(
-                      theController: password2InputController,
-                      labelText: "Confirm Password",
-                      hintText: "Enter Password",
-                      obscureText: true,
-                      onChanged: clearError,
-                    ),
-
                     GestureDetector(
                       onTap: () =>
                           {Navigator.pushNamed(context, "/forgot-password")},
@@ -99,24 +80,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     /// Buttons
                     someFreeSpace(height: 10, flexible: false),
                     commonOutlineButton(
-                      text: "Sign up!",
+                      text: "Sign in",
                       onPressed: () async {
-                        //
-                        if (passwordInputController.text !=
-                            password2InputController.text) {
-                          setState(() {
-                            hasError = true;
-                            errorMessage = "Passwords do not match";
-                          });
-                          return;
-                        }
-
                         print("logging in");
                         setState(() {
                           errorMessage = "logging in...";
                         });
                         dynamic something = await AuthServices()
-                            .signUpWithPassword(
+                            .signInWithPassword(
                                 email: emailInputController.text,
                                 password: passwordInputController.text);
                         if (something[0] == true) {
@@ -135,7 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     someFreeSpace(height: 10, flexible: false),
                     commonOutlineButton(
                       text: "Back to other options",
-                      onPressed: () => {Navigator.pop(context)},
+                      onPressed: () => {Navigator.pushNamed(context, "/")},
                       icon: Icon(Icons.chevron_left),
                     ),
                   ],
@@ -144,12 +115,5 @@ class _RegisterPageState extends State<RegisterPage> {
             ]),
       ),
     );
-  }
-
-  void clearError(dynamic _) {
-    setState(() {
-      hasError = false;
-      errorMessage = "";
-    });
   }
 }
