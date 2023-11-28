@@ -102,7 +102,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 commonOutlineButton(
                     text: "Save Profile",
                     onPressed: () {
-                      user?.updateDisplayName(displayNameController.text);
+                      try {
+                        // dynamic something =
+                        user?.updateDisplayName(displayNameController.text);
+                        showCustomDialog(
+                            context: context,
+                            title: "Profile updated!",
+                            description: "Profile updated successfully",
+                            popText: "close");
+                        // print(
+                        //     "something: $something ; ${something.runtimeType}");
+                      } catch (e) {
+                        print(e);
+                      }
                       // save the profile
                     })
               ],
