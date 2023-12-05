@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tictactoe/utils/Constants.dart';
@@ -456,4 +458,13 @@ BottomNavigationBar commonNavigationBar({
         )
         .toList(),
   );
+}
+
+/// Random stuff
+
+String randomString(int len) {
+  const _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+  final _rnd = Random();
+  return String.fromCharCodes(Iterable.generate(
+      len, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 }

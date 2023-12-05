@@ -25,6 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // User? user = FirebaseAuth.instance.currentUser;
   late String imageUrl;
   File? _image;
+  String uploadMessage = "";
   // final _firebaseStorage = FirebaseStorage.instance;
   // final _imagePicker = ImagePicker();
 
@@ -108,16 +109,21 @@ class _ProfilePageState extends State<ProfilePage> {
                             .child('/profile_images/$imageName.$imageExt');
                         // if (_image != null) {
                         var uploadTask = storageRef.putFile(File(image.path));
+                        setState(() {
+                          uploadMessage = "uploading image...";
+                        });
                         var downloadUrl =
                             await (await uploadTask).ref.getDownloadURL();
 
                         // if (downloadUrl) {
                         // print(downloadUrl);
-                        setState(() {
-                          _image = File(image.path);
-                        });
+
                         try {
                           user?.updatePhotoURL(downloadUrl);
+                          setState(() {
+                            uploadMessage = "Image uploaded successfully";
+                            _image = File(image.path);
+                          });
                         } catch (e) {
                           print(
                               "=========== Image Upload/Load/Pick Error ==========");
@@ -133,6 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       // change image
                     },
                     borderRadius: 10),
+                Text(uploadMessage),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: Column(

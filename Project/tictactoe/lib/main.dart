@@ -16,13 +16,17 @@ import 'package:tictactoe/pages/protected_pages/misc_pages/personal_game_record.
 import 'package:tictactoe/pages/protected_pages/misc_pages/personal_game_record_all.dart';
 import 'package:tictactoe/pages/protected_pages/misc_pages/profile.dart';
 import 'package:tictactoe/utils/Constants.dart';
+// import 'package:firebase_app_check/firebase_app_check.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  // await FirebaseAppCheck.instance.activate(
+  //   androidProvider: AndroidProvider.debug,
+  // );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
