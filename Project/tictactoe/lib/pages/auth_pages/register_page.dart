@@ -241,7 +241,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       text: "Sign in",
                       onPressed: () async {
                         print("signing up...");
-                        SystemChannels.textInput.invokeMethod('TextInput.hide');
+                        // SystemChannels.textInput.invokeMethod('TextInput.hide');
+                        unfocusTextInputFields();
 
                         setState(() {
                           errorMessage = "signing in...";

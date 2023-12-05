@@ -2,8 +2,42 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
-class Leaderboard extends StatelessWidget {
+import 'package:firebase_database/firebase_database.dart';
+
+class Leaderboard extends StatefulWidget {
   const Leaderboard({super.key});
+
+  @override
+  State<Leaderboard> createState() => _LeaderboardState();
+}
+
+class _LeaderboardState extends State<Leaderboard> {
+  void manageRealtimeSubscription() {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("games");
+    ref.onValue.listen((event) {
+      print("Realtime event: ${event.snapshot.value}");
+    });
+  }
+
+  void addSomething() {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("games");
+    ref.set({
+      "game_id": randomString(2),
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    manageRealtimeSubscription();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +51,10 @@ class Leaderboard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             children: [
+              appHomeButton(
+                  title: "add random",
+                  icon: Icon(Icons.abc),
+                  onPressed: addSomething),
               // text with border
               Container(
                 margin: const EdgeInsets.all(10.0),

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tictactoe/utils/Constants.dart';
 
 // class Utils {
@@ -467,4 +468,9 @@ String randomString(int len) {
   final _rnd = Random();
   return String.fromCharCodes(Iterable.generate(
       len, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+}
+
+/// Utils utils
+void unfocusTextInputFields() {
+  SystemChannels.textInput.invokeMethod('TextInput.hide');
 }

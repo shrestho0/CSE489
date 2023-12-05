@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tictactoe/pages/protected_pages/game_pages/confirm_match_page.dart';
+import 'package:tictactoe/utils/Types.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
 class JoinWithInvitationCodePage extends StatefulWidget {
@@ -13,6 +16,8 @@ class JoinWithInvitationCodePage extends StatefulWidget {
 class _JoinWithInvitationCodePageState
     extends State<JoinWithInvitationCodePage> {
   User? user = FirebaseAuth.instance.currentUser;
+
+  String? errorMessage = "";
 
   final inviteEditingController = TextEditingController();
 
@@ -29,18 +34,111 @@ class _JoinWithInvitationCodePageState
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: commonTextInputs(
-                    theController: inviteEditingController, labelText: "dd"),
+                    theController: inviteEditingController,
+                    onChanged: (_) => clearError(),
+                    labelText: "invitation code"),
               ),
-              commonOutlineButton(
-                  text: "Find & Play",
-                  onPressed: () {
-                    // the game page
-                    Navigator.pushNamed(context, "/confirm-match");
-                  })
+              Text(errorMessage ?? ""),
+              appHomeButton(
+                  title: "Accept invitation",
+                  icon: Icon(Icons.task_alt),
+                  onPressed: handleInvitationAccept),
             ],
           ),
         ));
+  }
+
+  void clearError() {
+    setState(() {
+      errorMessage = "";
+    });
+  }
+
+  void setError(String message) {
+    setState(() {
+      errorMessage = message;
+    });
+  }
+
+  void handleInvitationAccept() {
+    unfocusTextInputFields();
+
+    String invitationCode = inviteEditingController.text;
+    if (invitationCode.length != 6) {
+      setError("Invitation code must be 6 characters long");
+      return;
+    }
+
+    // Check if invitation code exists
+    FirebaseFirestore.instance
+        .collection("Invitation")
+        .where("invitation_code", isEqualTo: invitationCode)
+        .get()
+        .then((value) {
+      if (value.docs.isEmpty) {
+        setError("Invitation code does not exist");
+        return;
+      } else {
+        print("invitation code exists");
+        // Check if invitation code is not expired
+        var inviteData = value.docs[0];
+        if (inviteData["status"] == "received") {
+          setError("Invitation code already used");
+          return;
+        }
+
+        if (inviteData["expires_at"].toDate().isBefore(DateTime.now())) {
+          setError("Invitation code expired");
+          return;
+        }
+        if (inviteData["sender_uid"] == user!.uid) {
+          setError("You cannot accept your own invitation");
+          return;
+        }
+
+        if (inviteData["receiver_uid"] == "" &&
+            inviteData["status"] == "waiting") {
+          // setError("Player found!");
+
+          // Create game
+          // game page will create realtime with the data it has
+
+          FirebaseFirestore.instance.collection("Game").add({
+            "player1": inviteData["sender_uid"],
+            "player2": user!.uid,
+            "winner":
+                -1, // 1 for player1, 2 for player2, 0 for draw, -1 for incomplete
+            // "startTime": DateTime.now(), // game loading page theke update hobe, now confirm match page
+            // "endTime":  DateTime.now(), // the game page theke loading hobe
+          }).then((value) {
+            print("THE HOLY GAME HAS BEEN CREATED");
+            // Updating invitation data
+            FirebaseFirestore.instance
+                .collection("Invitation")
+                .doc(inviteData.id)
+                .update({
+              "receiver_uid": user!.uid,
+              "status": "received",
+              "game_id": value.id,
+            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ConfirmMatchPage(
+                  gameType: GameType.INVITATION,
+                  gameId: value.id,
+                  who_joined: 2,
+                ),
+              ),
+            );
+          });
+
+          return;
+          // Check if invitation code is not used
+        }
+      }
+    });
   }
 }

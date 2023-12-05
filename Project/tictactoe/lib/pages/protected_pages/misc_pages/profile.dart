@@ -100,18 +100,23 @@ class _ProfilePageState extends State<ProfilePage> {
                           .pickImage(source: ImageSource.gallery);
                       if (image != null) {
                         var imageName = user?.uid.toString();
-                        var imageData = image?.path.split(".");
-                        var imageExt = imageData?.last;
+                        var imageData = image.path.split(".");
+                        var imageExt = imageData.last;
+
                         print(
                             "=========== Image ext ==========\n${imageName} ${imageExt} ${imageData}");
+
                         var storageRef = FirebaseStorage.instance
                             .ref()
                             .child('/profile_images/$imageName.$imageExt');
+
                         // if (_image != null) {
                         var uploadTask = storageRef.putFile(File(image.path));
+
                         setState(() {
                           uploadMessage = "uploading image...";
                         });
+
                         var downloadUrl =
                             await (await uploadTask).ref.getDownloadURL();
 

@@ -5,7 +5,6 @@ import 'package:tictactoe/pages/auth_pages/auth_handler_page.dart';
 import 'package:tictactoe/pages/auth_pages/forgot_password_page.dart';
 import 'package:tictactoe/pages/auth_pages/login_with_password_page.dart';
 import 'package:tictactoe/pages/auth_pages/register_page.dart';
-import 'package:tictactoe/pages/protected_pages/game_pages/confirm_match_page.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/find_players_online.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/invite_someone_to_play.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/join_with_invitation_code_page.dart';
@@ -26,7 +25,7 @@ void main() async {
   // await FirebaseAppCheck.instance.activate(
   //   androidProvider: AndroidProvider.debug,
   // );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -43,9 +42,20 @@ class MyApp extends StatelessWidget {
         //   seedColor: Colors.black12,
         //   background: Colors.black87,
         // ),
+        textTheme: TextTheme(
+          bodyText1: TextStyle(
+            color: AppConstants.primaryTextColor,
+            fontSize: 12,
+          ),
+          bodyText2: TextStyle(
+            color: AppConstants.primaryTextColor,
+            fontSize: 16,
+          ),
+        ),
         colorScheme: ColorScheme.fromSwatch(
           // primarySwatch: Colors.blue,
           // backgroundColor: AppConstants.primaryBGColor,
+
           backgroundColor: AppConstants.primaryBGColor,
           accentColor: AppConstants.primaryMainColor,
 
@@ -71,7 +81,7 @@ class MyApp extends StatelessWidget {
         "/join-with-invitation-code": (context) =>
             const JoinWithInvitationCodePage(),
         "/invite-someone-to-play": (context) => const InviteSomeonePage(),
-        "/confirm-match": (context) => const ConfirmMatchPage(),
+        // "/confirm-match": (context) => const ConfirmMatchPage(), // Handled from other pages
         "/rematch-or-end-session": (context) => const PostGamePage(),
         "/the-game-page": (context) => const TheGamePage(),
 

@@ -57,8 +57,7 @@ class DefaultFirebaseOptions {
     appId: '1:1056261695703:android:4dcdc8716e2ef6a814a892',
     messagingSenderId: '1056261695703',
     projectId: 'p489-shrestho',
-    databaseURL:
-        'https://p489-shrestho-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL: 'https://p489-shrestho-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'p489-shrestho.appspot.com',
   );
 }

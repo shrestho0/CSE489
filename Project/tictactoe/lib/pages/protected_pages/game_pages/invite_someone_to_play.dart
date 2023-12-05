@@ -1,8 +1,9 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tictactoe/pages/protected_pages/game_pages/confirm_match_page.dart';
+import 'package:tictactoe/utils/Constants.dart';
+import 'package:tictactoe/utils/Types.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
 class InviteSomeonePage extends StatefulWidget {
@@ -14,74 +15,87 @@ class InviteSomeonePage extends StatefulWidget {
 
 class _InviteSomeonePageState extends State<InviteSomeonePage> {
   User? user = FirebaseAuth.instance.currentUser;
-  // final List<String> dummyInviteCodes = [
-  //   "jj2cb",
-  //   "s7neb",
-  //   "xw90d",
-  //   "wbwq6",
-  //   "tss7u"
-  // ];
-
-  /// generate random 6 digit alphanumeric code
-
-  // int dummyIdx = 0;
-
-  // generate random number between 0 to 4
-  // void dummyRandomIdx() {
-  //   setState(() {
-  //     dummyIdx = (dummyIdx + 1) % 5;
-  //   });
-  // }
 
   final inviteEditingController = TextEditingController();
   String? invitationCode;
 
-  // void createInvitations() {
-  //   FirebaseFirestore.instance.collection("Invitation").doc().set({
-  //     "invitation_code": invitationCode,
-  //     "sender_uid": user!.uid,
-  //     "receiver_uid": "",
-  //     "status": "waiting",
-  //     "created_at": DateTime.now(),
-  //     "expires_at": DateTime.now().add(const Duration(minutes: 10)),
-  //   });
-  // }
-}
-
-@override
-void initState() {
-  // TODO: implement initState
-
-  // check if user already has an active invitation code
-
-  if (user != null) {
-    final old_data = FirebaseFirestore.instance
+  void listenToInvitationChange(String invitaionDocName) {
+    final collection = FirebaseFirestore.instance
         .collection("Invitation")
-        .where("sender_uid", isEqualTo: user!.uid)
-        .where("expires_at", isGreaterThan: DateTime.now())
-        .orderBy("expires_at");
-    // if (old_data != null) {
-    print("OLD DATA");
-    old_data.get().then((querySnapshot) {
-      if (querySnapshot.docs.length > 0) {
-        invitationCode = querySnapshot.docs[0]["invitation_code"];
-      }
-      // for (var docSnapshot in querySnapshot.docs) {
-      //   print('${docSnapshot.id} => ${docSnapshot.data()}');
-      // }
-    });
-    print("OLD DATA");
+        .doc(invitaionDocName);
 
-    print("user ache, invite kora jabe");
-  } else {
-    // user already has an active invitation code
-    // so, no need to create a new one
-    // just use the old one
-    // invitationCode = old_data["invitation_code"];
-    // }
+    final listener = collection.snapshots().listen((change) {
+      if (change.exists) {
+        // do whatever you want to do
+        print("Invitation Data Changed ${change.data()}");
+        if (change.data()!["status"] == "received" &&
+            change.data()!["receiver_uid"] != "" &&
+            change.data()!["game_id"] != "") {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ConfirmMatchPage(
+                  gameType: GameType.INVITATION,
+                  gameId: change.data()!["game_id"],
+                  who_joined: 1,
+                ),
+              ));
+        } else {
+          // do nothing
+        }
+        // return yourOwnFunction();
+      } else {
+        // do nothing
+      }
+    });
+    listener.onDone(() {
+      listener.cancel();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // check if user already has an active invitation code
     invitationCode = randomString(6);
 
-    super.initState();
+    FirebaseFirestore.instance.collection("Invitation").add({
+      "sender_uid": user!.uid,
+      "receiver_uid": "",
+      "expires_at": DateTime.now().add(const Duration(days: 1)),
+      "invitation_code": invitationCode,
+      "status": "waiting",
+    }).then((value) {
+      listenToInvitationChange(value.id);
+    });
+
+    final oldData = FirebaseFirestore.instance
+        .collection("Invitation")
+        .where("sender_uid", isEqualTo: user!.uid)
+        .orderBy("expires_at");
+    // .where("expires_at", isGreaterThan: DateTime.now())
+
+    /// This can be 'waiting' or 'received' or "expired"
+
+    print("OLD USELESS DATA REDUCTION STARTED");
+    oldData.get().then((querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        // DELETE ALL DOCS
+        // New Invitation will be created!
+        for (var doc in querySnapshot.docs) {
+          print("ToDelete ${doc.data()}");
+          // doc.reference.update({"status": "expired"});
+          if (doc.data()["status"] == "waiting" &&
+              doc.data()["invitation_code"] != invitationCode) {
+            doc.reference.delete();
+          }
+        }
+      }
+      // TODO: DELETE The RESTs
+    });
+    print("OLD USELESS DATA REDUCTION STARTED");
+    print("creating a new invitation code");
   }
 
   @override
@@ -96,14 +110,66 @@ void initState() {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(invitationCode.toString()),
-              commonOutlineButton(
-                  text: "Share & Play",
-                  onPressed: () {
-                    Navigator.pushNamed(context, "/confirm-match");
+              Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: AppConstants.primaryTextColor)),
+                child: Text(
+                  invitationCode.toString(),
+                  style: TextStyle(color: AppConstants.primaryTextColor),
+                ),
+              ),
+              Text("Waiting for opponent..."),
+              // Firestore Stream on Invitation
+              // StreamBuilder<QuerySnapshot>(
+              //   stream: FirebaseFirestore.instance
+              //       .collection("Invitation")
+              //       .where("invitation_code", isEqualTo: invitationCode)
+              //       .snapshots(),
+              //   builder: (context, snapshot) {
+              //     if (snapshot.hasData) {
+              //       if (snapshot.data!.docs.isEmpty) {
+              //         return Text("Some error occured, please retry");
+              //       }
+              //       var inviteData = snapshot.data!.docs[0];
+              //       if (inviteData["status"] == "received" &&
+              //           inviteData["receiver_uid"] != "" &&
+              //           inviteData["game_id"] != "") {
+              //         // Navigator.push(
+              //         //   context,
+              //         //   MaterialPageRoute(
+              //         //     builder: (context) => ConfirmMatchPage(
+              //         //       gameType: GameType.INVITATION,
+              //         //       gameId: inviteData["game_id"],
+              //         //     ),
+              //         //   ),
+              //         // );
 
-                    // the game page
-                  })
+              //         return Column(
+              //           children: [
+              //             Text("Start Game"),
+              //             appHomeButton(
+              //                 title: "Start Game",
+              //                 icon: Icon(Icons.play_arrow),
+              //                 onPressed: () {
+              //                   Navigator.push(
+              //                       context,
+              //                       MaterialPageRoute(
+              //                         builder: (context) => ConfirmMatchPage(
+              //                           gameType: GameType.INVITATION,
+              //                           gameId: inviteData["game_id"],
+              //                         ),
+              //                       ));
+              //                 }),
+              //           ],
+              //         );
+              //       } else {
+              //         return Text("Waiting for opponent to accept...");
+              //       }
+              //     } else {
+              //       return Text("Some error occured, please retry");
+              //     }
+              //   },
+              // ),
             ],
           ),
         ));
