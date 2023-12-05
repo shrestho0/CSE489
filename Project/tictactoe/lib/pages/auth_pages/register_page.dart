@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tictactoe/services/auth_services.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
@@ -11,30 +12,162 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   //   // Input controllers
-  final emailInputController = TextEditingController();
 
-  final passwordInputController = TextEditingController();
-  final password2InputController = TextEditingController();
+  final theControllers = {
+    "email": TextEditingController(),
+    "displayName": TextEditingController(),
+    "password": TextEditingController(),
+    "password2": TextEditingController(),
+  };
+
+  // final emailInputController = TextEditingController();
+  // final passwordInputController = TextEditingController();
+  // final password2InputController = TextEditingController();
 
   bool hasError = false;
   String errorMessage = "";
 
   @override
   void dispose() {
-    emailInputController.dispose();
-    passwordInputController.dispose();
+    // Clean up the controller when the widget is disposed.
+
+    for (var element in theControllers.entries) {
+      element.value.dispose();
+    }
+
     super.dispose();
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     errorMessage = "";
   }
 
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Container(
+//         child: Flex(
+//             direction: Axis.vertical,
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             crossAxisAlignment: CrossAxisAlignment.center,
+//             children: [
+// //                             const Flexible(
+// //                 flex: 1,
+// //                 child: Padding(
+// //                   padding: EdgeInsets.all(5.0),
+// //                   child: Image(
+// //                     image: AssetImage('assets/ic_launcher.png'),
+// //                     height: 100,
+// //                     width: 100,
+// //                   ),
+// //                 ),
+// //               ),
+// // // page title
+//               authPageTitle("Register"),
+//               // Flexible(child: )
+//               Flexible(child: SizedBox(height: 10)),
+//               // someFreeSpace(height: 10.0, flexible: false),
+//               Container(
+//                 margin: const EdgeInsets.symmetric(horizontal: 20),
+//                 child: Flex(
+//                   direction: Axis.vertical,
+//                   children: [
+//                     commonTextInputs(
+//                       theController: theControllers["username"]!,
+//                       labelText: "Email",
+//                       hintText: "Enter Email",
+//                       onChanged: clearError,
+//                       flex_hobe: true,
+//                     ),
+//                     commonTextInputs(
+//                       theController: theControllers["email"]!,
+//                       labelText: "Email",
+//                       hintText: "Enter Email",
+//                       onChanged: clearError,
+//                       flex_hobe: true,
+//                     ),
+//                     commonTextInputs(
+//                       theController: theControllers["password"]!,
+//                       labelText: "Password",
+//                       hintText: "Enter Password",
+//                       obscureText: true,
+//                       onChanged: clearError,
+//                     ),
+//                     commonTextInputs(
+//                       theController: theControllers["password2"]!,
+//                       labelText: "Confirm Password",
+//                       hintText: "Enter Password",
+//                       obscureText: true,
+//                       onChanged: clearError,
+//                     ),
+
+//                     GestureDetector(
+//                       onTap: () =>
+//                           {Navigator.pushNamed(context, "/forgot-password")},
+//                       child: Container(
+//                         alignment: Alignment.topRight,
+//                         child: const Text("Forgot password?"),
+//                       ),
+//                     ),
+
+//                     /// Error message
+//                     Text(errorMessage),
+
+//                     /// Buttons
+//                     someFreeSpace(height: 10, flexible: false),
+//                     commonOutlineButton(
+//                       text: "Sign up!",
+//                       onPressed: () async {
+//                         //
+//                         if (theControllers["password"]!.text !=
+//                             theControllers["password2"]!.text) {
+//                           setState(() {
+//                             hasError = true;
+//                             errorMessage = "Passwords do not match";
+//                           });
+//                           return;
+//                         }
+
+//                         print("logging in");
+//                         setState(() {
+//                           errorMessage = "logging in...";
+//                         });
+//                         dynamic something = await AuthServices()
+//                             .signUpWithPassword(
+//                                 email: theControllers["email"]!.text,
+//                                 password: theControllers["password"]!.text);
+//                         if (something[0] == true) {
+//                           print("Logged in, going back");
+//                           Navigator.pop(context);
+//                         } else {
+//                           setState(() {
+//                             hasError = true;
+//                             errorMessage = something[1];
+//                           });
+//                           print(
+//                               "Error here!! something went wrong: ${something[1]}");
+//                         }
+//                       },
+//                     ),
+//                     someFreeSpace(height: 10, flexible: false),
+//                     commonOutlineButton(
+//                       text: "Back to other options",
+//                       onPressed: () => {Navigator.pop(context)},
+//                       icon: Icon(Icons.chevron_left),
+//                     ),
+//                   ],
+//                 ),
+//               )
+//             ]),
+//       ),
+//     );
+//   }
+
   @override
   Widget build(BuildContext context) {
+    // TODO: implement build
     return Scaffold(
       body: Container(
         // padding: const EdgeInsets.only(top: 200),
@@ -57,36 +190,42 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
 // page title
-              authPageTitle("Register"),
+              authPageTitle("Signup"),
               someFreeSpace(height: 10.0, flexible: false),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
                     commonTextInputs(
-                      theController: emailInputController,
+                      theController: theControllers["email"]!,
                       labelText: "Email",
                       hintText: "Enter Email",
                       onChanged: clearError,
                     ),
                     commonTextInputs(
-                      theController: passwordInputController,
+                      theController: theControllers["displayName"]!,
+                      labelText: "Display Name",
+                      hintText: "Enter display name",
+                      onChanged: clearError,
+                    ),
+                    commonTextInputs(
+                      theController: theControllers["password"]!,
                       labelText: "Password",
                       hintText: "Enter Password",
                       obscureText: true,
                       onChanged: clearError,
                     ),
                     commonTextInputs(
-                      theController: password2InputController,
-                      labelText: "Confirm Password",
+                      theController: theControllers["password2"]!,
+                      labelText: "Password",
                       hintText: "Enter Password",
                       obscureText: true,
                       onChanged: clearError,
                     ),
-
                     GestureDetector(
-                      onTap: () =>
-                          {Navigator.pushNamed(context, "/forgot-password")},
+                      onTap: () => {
+                        Navigator.pushNamed(context, "/forgot-password"),
+                      },
                       child: Container(
                         alignment: Alignment.topRight,
                         child: const Text("Forgot password?"),
@@ -99,29 +238,27 @@ class _RegisterPageState extends State<RegisterPage> {
                     /// Buttons
                     someFreeSpace(height: 10, flexible: false),
                     commonOutlineButton(
-                      text: "Sign up!",
+                      text: "Sign in",
                       onPressed: () async {
-                        //
-                        if (passwordInputController.text !=
-                            password2InputController.text) {
-                          setState(() {
-                            hasError = true;
-                            errorMessage = "Passwords do not match";
-                          });
-                          return;
-                        }
+                        print("signing up...");
+                        SystemChannels.textInput.invokeMethod('TextInput.hide');
 
-                        print("logging in");
                         setState(() {
-                          errorMessage = "logging in...";
+                          errorMessage = "signing in...";
                         });
-                        dynamic something = await AuthServices()
-                            .signUpWithPassword(
-                                email: emailInputController.text,
-                                password: passwordInputController.text);
+                        dynamic something =
+                            await AuthServices().signUpWithPassword(
+                          email: theControllers["email"]!.text,
+                          displayName: theControllers["displayName"]!.text,
+                          password: theControllers["password"]!.text,
+                          password2: theControllers["password2"]!.text,
+                        );
                         if (something[0] == true) {
                           print("Logged in, going back");
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
+                          // ignore: use_build_context_synchronously
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/', (route) => false);
                         } else {
                           setState(() {
                             hasError = true;
@@ -135,7 +272,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     someFreeSpace(height: 10, flexible: false),
                     commonOutlineButton(
                       text: "Back to other options",
-                      onPressed: () => {Navigator.pop(context)},
+                      onPressed: () => {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, '/', (route) => false)
+                      },
                       icon: Icon(Icons.chevron_left),
                     ),
                   ],

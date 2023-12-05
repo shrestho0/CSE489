@@ -36,14 +36,20 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   provider: ^6.1.0 
+
+  
   firebase_core: ^2.21.0
   cloud_firestore: ^4.12.2
   firebase_database: ^10.3.3
 
   firebase_auth: ^4.12.1
   google_sign_in: ^6.1.6
+  firebase_storage: ^11.5.3
 
+  image_picker: ^1.0.4
+  permission_handler:
 
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -76,6 +82,14 @@ flutter:
     - family: Arcade
       fonts:
         - asset: assets/fonts/ARCADECLASSIC.ttf
+
+    - family: Kongtext
+      fonts:
+        - asset: assets/fonts/kongtext.ttf
+
+    - family: RetroGaming
+      fonts:
+        - asset: assets/fonts/retro-gaming.ttf
 
     - family: IBMPlexMono
       fonts:

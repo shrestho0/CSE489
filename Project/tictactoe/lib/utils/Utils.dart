@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tictactoe/utils/Constants.dart';
 
 // class Utils {
 // }
@@ -93,14 +94,34 @@ Text authPageTitle(String title) {
   );
 }
 
-Container commonTextInputs({
+Widget commonTextInputs({
   required TextEditingController theController,
   void Function(String)? onChanged,
   bool obscureText = false,
   String? labelText,
   String? hintText,
   EdgeInsets? padding = const EdgeInsets.symmetric(vertical: 5),
+  bool? flex_hobe = false,
+  bool? enabled = true,
 }) {
+  if (flex_hobe == true) {
+    return Flexible(
+      child: Container(
+        padding: padding,
+        child: TextField(
+          onChanged: onChanged,
+          controller: theController,
+          obscureText: obscureText,
+          enabled: enabled,
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            labelText: labelText ?? "",
+            hintText: hintText ?? "",
+          ),
+        ),
+      ),
+    );
+  }
   return Container(
     padding: padding,
     child: TextField(
@@ -182,6 +203,43 @@ BoxDecoration textInsideBox({double radius = 5.0}) {
   );
 }
 
+AppBar commonUnProtectedAppbar({
+  required String title,
+  required BuildContext context,
+  double? fontSize = 25.0,
+  double? imageSize = 30.0,
+  bool? leading = false,
+}) {
+  return AppBar(
+    backgroundColor: Colors.white,
+    automaticallyImplyLeading: leading!,
+    title: Flexible(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.all(5),
+            child: Image(
+              image: const AssetImage("assets/ic_launcher.png"),
+              height: imageSize?.toDouble(),
+            ),
+          ),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+              fontFamily: "RetroGaming",
+              fontSize: fontSize?.toDouble(),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 AppBar commonProtectedAppbar({
   required String title,
   required BuildContext context,
@@ -251,5 +309,151 @@ Future<void> showCustomDialog(
         ],
       );
     },
+  );
+}
+
+Widget appHomeButton({
+  required String title,
+  required Widget icon,
+  double? fontSize = 12.0,
+  void Function()? onPressed,
+  EdgeInsets? padding =
+      const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
+  EdgeInsets? margin =
+      const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
+  double? borderRadius = 0.0,
+  String? fontFamily = "RetroGaming",
+}) {
+  return GestureDetector(
+    onTap: onPressed,
+    child: Container(
+      padding: padding,
+      margin: margin,
+      decoration: BoxDecoration(
+        color: AppConstants.primaryMainColor,
+        borderRadius: BorderRadius.circular(borderRadius!),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: icon,
+          ),
+          Text(
+            style: TextStyle(
+              color: AppConstants.primaryTextColor,
+              fontFamily: fontFamily,
+              fontSize: fontSize,
+            ),
+            title,
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget appHomeNicherButton({
+  required String title,
+  required Widget icon,
+  double? fontSize = 12.0,
+  void Function()? onPressed,
+}) {
+  return GestureDetector(
+    onTap: onPressed,
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
+      // margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppConstants.primaryMainColor,
+        // border: Border.all(
+        //   color: AppConstants.primaryTextColor,
+        // ),
+        borderRadius: BorderRadius.circular(30.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          //   child: icon,
+          // ),
+          icon,
+          Text(
+            style: const TextStyle(
+              color: AppConstants.primaryTextColor,
+              fontFamily: "RetroGaming",
+              fontSize: 12.0,
+            ),
+            title,
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// Bottom Navigation Bar
+
+BottomNavigationBar commonNavigationBar({
+  required BuildContext context,
+  required String currentRoute,
+  int? selectedIndex = 1,
+}) {
+  List<Map<String, dynamic>> bottomNavigationStuff = [
+    {
+      "icon": Icons.person,
+      "label": "Profile",
+      "route": "/profile",
+    },
+    {
+      "icon": Icons.home,
+      "label": "Home",
+      "route": "/",
+    },
+    {
+      "icon": Icons.logout,
+      "label": "Logout",
+      "route": "/logout",
+    },
+  ];
+
+  return BottomNavigationBar(
+    selectedFontSize: 12,
+    unselectedFontSize: 10,
+    currentIndex: selectedIndex!,
+    onTap: (value) {
+      if (value == 0 && currentRoute != "/profile") {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          "/profile",
+          (route) => false,
+        );
+      } else if (value == 1 && currentRoute != "/") {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          "/",
+          (_) => false,
+        );
+      } else if (value == 2) {
+        FirebaseAuth.instance.signOut();
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/',
+          (route) => false,
+        );
+      }
+    },
+    items: bottomNavigationStuff
+        .map(
+          (e) => BottomNavigationBarItem(
+            icon: Icon(e["icon"]),
+            label: e["label"],
+          ),
+        )
+        .toList(),
   );
 }

@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
     // );
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.white),
+      // appBar: AppBar(backgroundColor: Colors.white),
       body: Container(
         padding: const EdgeInsets.only(bottom: 180),
         child: Flex(
@@ -40,24 +40,9 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              "`tictactoe`",
-              style: TextStyle(
-                backgroundColor: Colors.black87,
-                color: Colors.white54,
-                fontSize: 30,
-                fontFamily: "Arcade",
-              ),
-            ),
-            someFreeSpace(height: 5),
-            const Text(
-              "Online `tictactoe` game for cse470 project",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12),
-            ),
-            someFreeSpace(height: 5),
+            someFreeSpace(height: 30),
             const Flexible(
-              flex: 1,
+              // flex: 1,
               child: Padding(
                 padding: EdgeInsets.all(5.0),
                 child: Image(
@@ -67,7 +52,24 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            someFreeSpace(height: 50, flexible: true),
+            const Text(
+              "tictactoe",
+              style: TextStyle(
+                backgroundColor: Colors.black87,
+                color: Colors.white54,
+                fontSize: 30,
+              ),
+            ),
+            someFreeSpace(height: 10),
+            const Text(
+              "Online `tictactoe` game for cse470 project",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontFamily: "IBMPlexMono",
+              ),
+            ),
+            someFreeSpace(height: 60, flexible: true),
             // The Buttons
             // make them a bit better, like the previous plan
 
@@ -76,33 +78,58 @@ class _LoginPageState extends State<LoginPage> {
             // Buttons
 
             // Buttons
-            commonOutlineButton(
-              text: "Already an user?",
+            // commonOutlineButton(
+            //   text: "Already an user?",
+
+            //   icon: const Icon(Icons.login_rounded),
+            // ),
+            appHomeButton(
+              title: "Already an user?",
+              icon: const Icon(Icons.login_rounded),
               onPressed: () {
                 Navigator.pushNamed(context, "/login");
               },
-              icon: const Icon(Icons.login_rounded),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              borderRadius: 25,
+              // fontFamily: "IBMPlexMono",
             ),
 
-            // Buttons
-            commonOutlineButton(
-              text: "Create an account",
+            appHomeButton(
+              title: "Create an account.",
+              icon: const Icon(Icons.person),
               onPressed: () {
                 Navigator.pushNamed(context, "/register");
               },
-              icon: const Icon(Icons.person),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              borderRadius: 25,
+              // fontFamily: "IBMPlexMono",
             ),
-            commonOutlineButton(
-              text: "Authenticate with google",
-              onPressed: () {
-                AuthServices().signInWithGoogle();
-              },
-              image: const Image(
-                image: AssetImage('assets/google_icon.png'),
-                height: 20,
-                width: 20,
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: Text(
+                " or ",
+                style: TextStyle(fontFamily: "Kongtext"),
               ),
             ),
+            appHomeButton(
+                title: "Login/Register with Google",
+                icon: const Image(
+                  image: AssetImage('assets/google_icon.png'),
+                  height: 20,
+                  width: 20,
+                ),
+                onPressed: () {
+                  AuthServices().signInWithGoogle();
+                },
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                borderRadius: 25,
+                // fontFamily: "RetroGaming",
+                fontSize: 10),
           ],
         ),
       ),

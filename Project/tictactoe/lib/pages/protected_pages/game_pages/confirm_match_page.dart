@@ -29,7 +29,7 @@ class _ConfirmMatchPageState extends State<ConfirmMatchPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text("Match Found!!"),
+              const Text("Match Found!!"),
               commonOutlineButton(
                   text: "Start Match",
                   onPressed: () {

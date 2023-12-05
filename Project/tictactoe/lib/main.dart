@@ -15,6 +15,7 @@ import 'package:tictactoe/pages/protected_pages/misc_pages/leaderboard.dart';
 import 'package:tictactoe/pages/protected_pages/misc_pages/personal_game_record.dart';
 import 'package:tictactoe/pages/protected_pages/misc_pages/personal_game_record_all.dart';
 import 'package:tictactoe/pages/protected_pages/misc_pages/profile.dart';
+import 'package:tictactoe/utils/Constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,10 +35,21 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.black87, background: Colors.white),
+        // colorScheme: ColorScheme.fromSeed(
+        //   seedColor: Colors.black12,
+        //   background: Colors.black87,
+        // ),
+        colorScheme: ColorScheme.fromSwatch(
+          // primarySwatch: Colors.blue,
+          // backgroundColor: AppConstants.primaryBGColor,
+          backgroundColor: AppConstants.primaryBGColor,
+          accentColor: AppConstants.primaryMainColor,
+
+          brightness: Brightness.dark,
+        ),
         useMaterial3: true,
-        fontFamily: "IBMPlexMono",
+        // fontFamily: "Kongtext",
+        fontFamily: "RetroGaming",
       ),
       home: const AuthHandlerPage(),
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tictactoe/services/auth_services.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
@@ -84,6 +85,8 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                       text: "Sign in",
                       onPressed: () async {
                         print("logging in");
+                        SystemChannels.textInput.invokeMethod('TextInput.hide');
+
                         setState(() {
                           errorMessage = "logging in...";
                         });

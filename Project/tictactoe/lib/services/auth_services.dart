@@ -56,13 +56,30 @@ class AuthServices {
 
   ///
 
-  signUpWithPassword({required String email, required password}) async {
+  signUpWithPassword({
+    required String email,
+    required String password,
+    required String password2,
+    required String displayName,
+  }) async {
+    // Ber kore deya hocche
+    if (password != password2) {
+      return [false, "Both password must be same"];
+    }
+
     print("account khola hobe");
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      // Updates Display Name after registratio
+      User? user = FirebaseAuth.instance.currentUser;
+      user?.updatePhotoURL(
+          "https://www.google.com/images/branding/googlelogo/1x/googlelogo_light_color_272x92dp.png");
+      user?.updateDisplayName(displayName);
+
       print("services/auth_services:signInWithPassword: success");
       return [true, ""];
     } on FirebaseAuthException catch (e) {

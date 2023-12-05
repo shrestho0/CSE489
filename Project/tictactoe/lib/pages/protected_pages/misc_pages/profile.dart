@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -10,80 +15,124 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  User? user = FirebaseAuth.instance.currentUser;
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  // }
+  // User? user = FirebaseAuth.instance.currentUser;
+  late String imageUrl;
+  File? _image;
+  // final _firebaseStorage = FirebaseStorage.instance;
+  // final _imagePicker = ImagePicker();
 
   final displayNameController = TextEditingController();
   final emailEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+
     displayNameController.text = user?.displayName ?? "";
     emailEditingController.text = user?.email ?? "";
+
     return Scaffold(
-        appBar: commonProtectedAppbar(
-            title: "", context: context, user: user, leading: false),
+        bottomNavigationBar: commonNavigationBar(
+          context: context,
+          selectedIndex: 0,
+          currentRoute: "/profile",
+        ),
         body: SingleChildScrollView(
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            margin: const EdgeInsets.only(top: 100),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                    child: Column(
-                      children: [
-                        commonOutlineButton(
-                            text: "Back to home page",
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/');
-                            },
-                            icon: Icon(Icons.home)),
-                        commonOutlineButton(
-                            text: "Logout!",
-                            onPressed: () {
-                              FirebaseAuth.instance.signOut();
-                              // Navigator.pushNamedAndRemoveUntil(
-                              //     context, "/login", (route) => false);
-                              Navigator.pushNamedAndRemoveUntil(
-                                  context, '/', (route) => false);
-                            },
-                            icon: Icon(Icons.logout)),
-                      ],
-                    )),
                 GestureDetector(
                   onTap: () {
-                    showCustomDialog(
-                        context: context,
-                        title: "Display Image",
-                        description: "Features will be added later",
-                        popText: "Okhay!");
+                    // SystemChannels.textInput.invokeMethod('TextInput.hide');
                   },
                   child: ClipOval(
-                    child: user?.photoURL != null
-                        ? Image.network(
-                            user!.photoURL.toString(),
+                    child: _image != null
+                        ? Image.file(
+                            _image!,
                             height: 100,
                             width: 100,
                           )
-                        : const CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Colors.black87,
-                            child: Icon(
-                              Icons.person,
-                              size: 50,
-                              color: Colors.white70,
-                            ),
-                          ),
+                        : user?.photoURL != null
+                            ? Image.network(
+                                user!.photoURL.toString(),
+                                height: 100,
+                                width: 100,
+                              )
+                            : const CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.black87,
+                                child: Icon(
+                                  Icons.person,
+                                  size: 50,
+                                  color: Colors.white70,
+                                ),
+                              ),
                   ),
                 ),
+                // Center(
+                //   child: _image == null
+                //       ? Text('No image selected.')
+                //       : Image.file(_image!),
+                // ),
+                appHomeButton(
+                    title: "change image",
+                    icon: someFreeSpace(height: 1, flexible: false),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    onPressed: () async {
+                      // setState(() {
+                      // _image = null;
+                      // });
+                      final image = await ImagePicker()
+                          .pickImage(source: ImageSource.gallery);
+                      if (image != null) {
+                        var imageName = user?.uid.toString();
+                        var imageData = image?.path.split(".");
+                        var imageExt = imageData?.last;
+                        print(
+                            "=========== Image ext ==========\n${imageName} ${imageExt} ${imageData}");
+                        var storageRef = FirebaseStorage.instance
+                            .ref()
+                            .child('/profile_images/$imageName.$imageExt');
+                        // if (_image != null) {
+                        var uploadTask = storageRef.putFile(File(image.path));
+                        var downloadUrl =
+                            await (await uploadTask).ref.getDownloadURL();
+
+                        // if (downloadUrl) {
+                        // print(downloadUrl);
+                        setState(() {
+                          _image = File(image.path);
+                        });
+                        try {
+                          user?.updatePhotoURL(downloadUrl);
+                        } catch (e) {
+                          print(
+                              "=========== Image Upload/Load/Pick Error ==========");
+                          print(e);
+                          print(
+                              "=========== Image Upload/Load/Pick Error ==========");
+                        }
+                        // }
+                        // }
+                      } else {
+                        // do nothing
+                      }
+                      // change image
+                    },
+                    borderRadius: 10),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: Column(
@@ -94,7 +143,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       commonTextInputs(
                         theController: emailEditingController,
-                        labelText: "Email Name",
+                        enabled: false,
+                        labelText: "Email",
                       ),
                     ],
                   ),
@@ -102,6 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 commonOutlineButton(
                     text: "Save Profile",
                     onPressed: () {
+                      SystemChannels.textInput.invokeMethod('TextInput.hide');
                       try {
                         // dynamic something =
                         user?.updateDisplayName(displayNameController.text);
