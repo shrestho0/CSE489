@@ -10,7 +10,7 @@ import 'package:tictactoe/pages/protected_pages/game_pages/find_players_online.d
 import 'package:tictactoe/pages/protected_pages/game_pages/invite_someone_to_play.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/join_with_invitation_code_page.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/post_game_page.dart';
-import 'package:tictactoe/pages/protected_pages/game_pages/the_game_page.dart';
+import 'package:tictactoe/pages/protected_pages/home_page.dart';
 import 'package:tictactoe/pages/protected_pages/misc_pages/leaderboard.dart';
 import 'package:tictactoe/pages/protected_pages/misc_pages/personal_game_record.dart';
 import 'package:tictactoe/pages/protected_pages/misc_pages/personal_game_record_all.dart';
@@ -80,6 +80,7 @@ class MyApp extends StatelessWidget {
           "/login": (context) => const LoginWithPassword(),
 
           /// Protected Pages
+          "/home": (context) => const HomePage(),
 
           // Game Pages
           "/find-players-online": (context) => const FindPlayersOnline(),
@@ -88,7 +89,7 @@ class MyApp extends StatelessWidget {
           "/invite-someone-to-play": (context) => const InviteSomeonePage(),
           // "/confirm-match": (context) => const ConfirmMatchPage(), // Handled from other pages
           "/rematch-or-end-session": (context) => const PostGamePage(),
-          "/the-game-page": (context) => const TheGamePage(),
+          // "/the-game-page": (context) => TheGamePage(),
 
           // Misc Pages
           "/profile": (context) => const ProfilePage(),

@@ -38,6 +38,8 @@ class _InviteSomeonePageState extends State<InviteSomeonePage> {
                   gameType: GameType.INVITATION,
                   gameId: change.data()!["game_id"],
                   who_joined: 1,
+                  name_who: user!.displayName ?? "you",
+                  uid_who: user!.uid,
                 ),
               ));
         } else {
@@ -70,30 +72,35 @@ class _InviteSomeonePageState extends State<InviteSomeonePage> {
       listenToInvitationChange(value.id);
     });
 
-    final oldData = FirebaseFirestore.instance
-        .collection("Invitation")
-        .where("sender_uid", isEqualTo: user!.uid)
-        .orderBy("expires_at");
-    // .where("expires_at", isGreaterThan: DateTime.now())
+    // TODO: Delete all old invitations
+    // This also can be done manually using a cronjob
+    // See this later
 
-    /// This can be 'waiting' or 'received' or "expired"
+    // final oldData = FirebaseFirestore.instance
+    //     .collection("Invitation")
+    //     .where("sender_uid", isEqualTo: user!.uid)
+    //     .orderBy("expires_at");
+    // // .where("expires_at", isGreaterThan: DateTime.now())
 
-    print("OLD USELESS DATA REDUCTION STARTED");
-    oldData.get().then((querySnapshot) {
-      if (querySnapshot.docs.isNotEmpty) {
-        // DELETE ALL DOCS
-        // New Invitation will be created!
-        for (var doc in querySnapshot.docs) {
-          print("ToDelete ${doc.data()}");
-          // doc.reference.update({"status": "expired"});
-          if (doc.data()["status"] == "waiting" &&
-              doc.data()["invitation_code"] != invitationCode) {
-            doc.reference.delete();
-          }
-        }
-      }
-      // TODO: DELETE The RESTs
-    });
+    // /// This can be 'waiting' or 'received' or "expired"
+
+    // print("OLD USELESS DATA REDUCTION STARTED");
+    // oldData.get().then((querySnapshot) {
+    //   if (querySnapshot.docs.isNotEmpty) {
+    //     // DELETE ALL DOCS
+    //     // New Invitation will be created!
+    //     for (var doc in querySnapshot.docs) {
+    //       // doc.reference.update({"status": "expired"});
+    //       if (doc.data()["status"] == "waiting" &&
+    //           doc.data()["invitation_code"] != invitationCode) {
+    //         print("ToDelete ${doc.data()}");
+    //         doc.reference.delete();
+    //       }
+    //     }
+    //   }
+    //   // TODO: DELETE The RESTs
+    // });
+
     print("OLD USELESS DATA REDUCTION STARTED");
     print("creating a new invitation code");
   }

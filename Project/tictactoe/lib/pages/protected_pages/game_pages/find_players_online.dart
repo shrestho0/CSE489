@@ -102,9 +102,7 @@ class _FindPlayersOnlineState extends State<FindPlayersOnline> {
                     commonOutlineButton(
                         text: "cancel",
                         onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, "/", (route) => false);
-
+                          Navigator.pop(context);
                           // the game page
                         }),
                   ],

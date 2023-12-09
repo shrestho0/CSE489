@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tictactoe/pages/auth_pages/login_page.dart';
 import 'package:tictactoe/pages/protected_pages/home_page.dart';
-import 'package:tictactoe/pages/protected_pages/misc_pages/error_page.dart';
 import 'package:tictactoe/utils/Constants.dart';
 
 ///
@@ -20,50 +20,97 @@ class BaseHandler extends StatefulWidget {
 
 class _BaseHandlerState extends State<BaseHandler> {
   // MultiProvider(
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
-  late StreamSubscription<ConnectivityResult> subscription;
-  // internet connected
-  late bool _internetConnected = false;
   // auth will be handled by firebase
+  // Platform messages are asynchronous, so we initialize in an async method.
 
-  setInternetStatus(bool value) {
-    _internetConnected = value;
-    setState(() {});
-  }
-
+  // @override
+  // initState() {
+  //   super.initState();
+  //   subscription = Connectivity()
+  //       .onConnectivityChanged
+  //       .listen((ConnectivityResult result) {
+  //     if (result == ConnectivityResult.none) {
+  //       // not connected to any network,
+  //       // setInternetStatus(false);
+  //       _connectivitySubscription =
+  //           _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  //     } else {
+  //       // connected to some network
+  //       // assuming that it is connected to internet
+  //       // TODO: check if it is connected to internet
+  //       setInternetStatus(true);
+  //     }
+  //     print("[[[ new connectivity result ]]]: $result");
+  //     // // Got a new connectivity status!
+  //   });
+  // }
   @override
-  initState() {
+  void initState() {
     super.initState();
+    initConnectivity();
 
-    subscription = Connectivity()
-        .onConnectivityChanged
-        .listen((ConnectivityResult result) {
-      if (result == ConnectivityResult.none) {
-        // not connected to any network,
-
-        setInternetStatus(false);
-      } else {
-        // connected to some network
-        // assuming that it is connected to internet
-        // TODO: check if it is connected to internet
-        setInternetStatus(true);
-      }
-      print("[[[ new connectivity result ]]]: $result");
-      // // Got a new connectivity status!
-    });
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
   @override
   dispose() {
-    subscription.cancel();
+    _connectivitySubscription.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_internetConnected) {
-      return _authHandler();
+    if (!(_connectionStatus == ConnectivityResult.none)) {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        FirebaseFirestore.instance.collection("UserStatus").doc(user.uid).set({
+          "isOnline": true,
+          "isPlaying": false,
+          "last_online_time": FieldValue.serverTimestamp(),
+        });
+        return const HomePage();
+      } else {
+        return const LoginPage();
+      }
+
+      // return Scaffold(
+      //   body: StreamBuilder<User?>(
+      //     stream: FirebaseAuth.instance.authStateChanges(),
+      //     builder: (context, snapshot) {
+      //       if (snapshot.hasData) {
+      //         try {
+      //           // maybe shudhu home page ee gele update hobe,
+      //           // shob page ghure back korle, home page ee pathate hobe instead of "/"
+      //           User? user = FirebaseAuth.instance.currentUser;
+      //           if (user != null) {
+      //             FirebaseFirestore.instance
+      //                 .collection("UserStatus")
+      //                 .doc(user.uid)
+      //                 .set({
+      //               "isOnline": true,
+      //               "isPlaying": false,
+      //               "last_online_time": FieldValue.serverTimestamp(),
+      //             });
+      //           }
+      //           return const HomePage();
+      //         } catch (e) {
+      //           print("error: $e");
+      //           return const ErrorPage();
+      //         }
+      //       } else {
+      //         return const LoginPage();
+      //       }
+      //     },
+      //   ),
+      // );
     } else {
+      print("ConnectivityResult on false");
+
       return _offlineHandler();
     }
   }
@@ -101,42 +148,36 @@ class _BaseHandlerState extends State<BaseHandler> {
     );
   }
 
-  // Widget _offlineHandler() {
-  Widget _authHandler() {
-    return Scaffold(
-      body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            try {
-              User? user = FirebaseAuth.instance.currentUser;
-              if (user != null) {
-                FirebaseFirestore.instance
-                    .collection("UserStatus")
-                    .doc(user.uid)
-                    .set({
-                  "isOnline": true,
-                  "isPlaying": false,
-                  "last_online_time": FieldValue.serverTimestamp(),
-                });
-              }
-              return const HomePage();
-            } catch (e) {
-              print("error: $e");
-              return const ErrorPage();
-            }
-          } else {
-            return const LoginPage();
-          }
-        },
-      ),
-    );
-  }
-
 // Utilities
   void signOut() {
     // print("user signing out ${FirebaseAuth.instance.currentUser.email}");
     FirebaseAuth.instance.signOut();
     //
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      print('Couldn\'t check connectivity status $e');
+      return;
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
   }
 }

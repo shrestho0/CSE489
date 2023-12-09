@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:tictactoe/services/game_services.dart';
 import 'package:tictactoe/utils/Constants.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
@@ -138,15 +136,24 @@ class HomePage extends StatelessWidget {
               ],
             ),
             ////
-            Text(context.watch<GameServices>().loading.toString()),
+            // Text(context.watch<GameServices>().loading.toString()),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     context
+            //         .read<GameServices>()
+            //         .setLoading(!context.read<GameServices>().loading);
+            //   },
+            //   child: const Text("Set Loading"),
+            // ),
             ElevatedButton(
+              child: Text("rematch-or-end-session"),
               onPressed: () {
-                context
-                    .read<GameServices>()
-                    .setLoading(!context.read<GameServices>().loading);
+                // push back to the last page
+                Navigator.popUntil(context, (route) => false);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const HomePage()));
               },
-              child: const Text("Set Loading"),
-            ),
+            )
           ],
         ),
       ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +11,16 @@ class ConfirmMatchPage extends StatefulWidget {
   final GameType gameType;
   final String? gameId;
   final int who_joined;
+  final String name_who;
+  final String uid_who;
+
   const ConfirmMatchPage({
     super.key,
     this.gameType = GameType.ONLINE,
     this.gameId,
     required this.who_joined,
+    required this.name_who,
+    required this.uid_who,
   });
 
   @override
@@ -26,19 +33,25 @@ class _ConfirmMatchPageState extends State<ConfirmMatchPage> {
   final inviteEditingController = TextEditingController();
 
   void createRTGame(String gameId) {
+    var _random = new Random();
     // game data about game
 
     DatabaseReference databaseReference =
         FirebaseDatabase.instance.ref("games").child(gameId);
 
     Map<String, Object> gameData = {
+      "turn": _random.nextInt(2) + 1,
       "moves": [0, 0, 0, 0, 0, 0, 0, 0, 0],
       "playing": false,
     };
     if (widget.who_joined == 1) {
       gameData["player1_joined"] = true;
+      gameData["player1_name"] = widget.name_who;
+      gameData["player1_id"] = widget.uid_who;
     } else if (widget.who_joined == 2) {
       gameData["player2_joined"] = true;
+      gameData["player2_name"] = widget.name_who;
+      gameData["player2_id"] = widget.uid_who;
     }
 
     // "player1_joined": widget.who_joined == 1 ? true : false,
@@ -73,8 +86,17 @@ class _ConfirmMatchPageState extends State<ConfirmMatchPage> {
           Navigator.pushReplacement(context, MaterialPageRoute(
             builder: (context) {
               // TheGamePage takes game id, user1 displayname, user2 di
-              
-              return const TheGamePage();
+
+              return TheGamePage(
+                  // what we can do is,
+                  // on each round end, we can take the game data from here and save in firestore as GameData
+                  // on re-match, we can create new game from current game data and save this one to firestore as GameData
+                  // we can store the session number in the firestore sessions collection too. But, that can be done later
+                  // need to finish this one first.
+                  // for now, we will send the sessionGameNumber to next next pages until the new game.
+                  // finally destory the sessionGameNumber, for now of course
+                  gameId: widget.gameId.toString(),
+                  sessionGameNumber: 1);
             },
           ));
         } else {

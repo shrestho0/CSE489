@@ -120,8 +120,14 @@ class _LoginPageState extends State<LoginPage> {
                   height: 20,
                   width: 20,
                 ),
-                onPressed: () {
-                  BaseServices().signInWithGoogle();
+                onPressed: () async {
+                  Future<bool> status = BaseServices().signInWithGoogle();
+
+                  if (await status) {
+                    Navigator.pushNamed(context, "/home");
+                  } else {
+                    print("error");
+                  }
                 },
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

@@ -96,7 +96,8 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                                 password: passwordInputController.text);
                         if (something[0] == true) {
                           print("Logged in, going back");
-                          Navigator.pop(context);
+                          Navigator.popAndPushNamed(context, "/home");
+                          // Navigator.pop(context);
                         } else {
                           setState(() {
                             hasError = true;

@@ -15,27 +15,25 @@ class _PostGamePageState extends State<PostGamePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: commonProtectedAppbar(
-            title: "Re-match", context: context, user: user, leading: false),
         body: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              commonOutlineButton(
-                  text: "Re-match Match",
-                  onPressed: () {
-                    Navigator.popAndPushNamed(context, "/the-game-page");
-                  }),
-              commonOutlineButton(
-                  text: "End session",
-                  onPressed: () {
-                    Navigator.popAndPushNamed(context, "/");
-                  })
-            ],
-          ),
-        ));
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          commonOutlineButton(
+              text: "Re-match Match",
+              onPressed: () {
+                Navigator.popAndPushNamed(context, "/the-game-page");
+              }),
+          commonOutlineButton(
+              text: "End session",
+              onPressed: () {
+                Navigator.popAndPushNamed(context, "/");
+              })
+        ],
+      ),
+    ));
   }
 }

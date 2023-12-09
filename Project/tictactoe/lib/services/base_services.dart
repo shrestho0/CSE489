@@ -3,7 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class BaseServices {
   // Google Sign in
-  signInWithGoogle() async {
+  Future<bool> signInWithGoogle() async {
     // begin signin process
     final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
 
@@ -17,11 +17,12 @@ class BaseServices {
     );
     try {
       UserCredential x = await FirebaseAuth.instance.signInWithCredential(cred);
-      return [true, x];
+      print("services/auth_services:signInWithGoogle: success $x");
+      return true;
     } catch (e) {
       print("services/auth_services:signInWithGoogle: ${e.toString()}");
 
-      return [false, e.toString()];
+      return false;
     }
   }
 

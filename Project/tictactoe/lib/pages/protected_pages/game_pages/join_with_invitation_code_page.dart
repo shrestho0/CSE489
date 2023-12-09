@@ -130,6 +130,8 @@ class _JoinWithInvitationCodePageState
                   gameType: GameType.INVITATION,
                   gameId: value.id,
                   who_joined: 2,
+                  name_who: user!.displayName ?? "you",
+                  uid_who: user!.uid,
                 ),
               ),
             );
