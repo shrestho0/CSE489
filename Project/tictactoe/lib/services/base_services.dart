@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class AuthServices {
+class BaseServices {
   // Google Sign in
   signInWithGoogle() async {
     // begin signin process

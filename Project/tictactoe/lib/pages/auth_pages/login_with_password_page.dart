@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tictactoe/services/auth_services.dart';
+import 'package:tictactoe/services/base_services.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
 class LoginWithPassword extends StatefulWidget {
@@ -90,7 +90,7 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                         setState(() {
                           errorMessage = "logging in...";
                         });
-                        dynamic something = await AuthServices()
+                        dynamic something = await BaseServices()
                             .signInWithPassword(
                                 email: emailInputController.text,
                                 password: passwordInputController.text);

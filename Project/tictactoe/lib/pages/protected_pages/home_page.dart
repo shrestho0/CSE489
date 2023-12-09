@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:tictactoe/services/game_services.dart';
 import 'package:tictactoe/utils/Constants.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
@@ -136,6 +138,15 @@ class HomePage extends StatelessWidget {
               ],
             ),
             ////
+            Text(context.watch<GameServices>().loading.toString()),
+            ElevatedButton(
+              onPressed: () {
+                context
+                    .read<GameServices>()
+                    .setLoading(!context.read<GameServices>().loading);
+              },
+              child: const Text("Set Loading"),
+            ),
           ],
         ),
       ),

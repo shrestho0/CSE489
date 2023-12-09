@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tictactoe/services/auth_services.dart';
+import 'package:tictactoe/services/base_services.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
 enum PreLoginStates { Nothing, AwaitLogin, Loading, Error }
@@ -121,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: 20,
                 ),
                 onPressed: () {
-                  AuthServices().signInWithGoogle();
+                  BaseServices().signInWithGoogle();
                 },
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
