@@ -2,16 +2,29 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:tictactoe/pages/protected_pages/home_page.dart';
+import 'package:tictactoe/services/game_services.dart';
 import 'package:tictactoe/utils/Constants.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
 /// Post Game page er maybe dorkar ee nei, ekhanei logic diye show kora jabe, accordingly kaj kora jabe.
 /// feels a bit comfortable now
 
+enum GameState { NOT_STARTED, STARTED, ENDED }
+
+enum GameResult {
+  // 0 Player None -> All 0 case OR incomplete game
+  // 1 Player 1 wins
+  // 2 Player 2 wins
+  // 3 Draw
+  INCOMPLETE,
+  PLAYER_1_WINS,
+  PLAYER_2_WINS,
+  DRAW,
+}
+
 class TheGamePage extends StatefulWidget {
   final String gameId;
   final int sessionGameNumber;
-
   const TheGamePage({
     super.key,
     required this.gameId,
@@ -24,7 +37,8 @@ class TheGamePage extends StatefulWidget {
 
 class _TheGamePageState extends State<TheGamePage> {
   User? user = FirebaseAuth.instance.currentUser;
-
+  GameState gameState = GameState.NOT_STARTED;
+  GameResult gameResult = GameResult.INCOMPLETE;
   dynamic gameData;
 
   DatabaseReference? ref;
@@ -32,6 +46,8 @@ class _TheGamePageState extends State<TheGamePage> {
   void initRTConn() {
     ref =
         FirebaseDatabase.instance.ref("games").child(widget.gameId.toString());
+
+    gameState = GameState.STARTED;
 
     ref?.onValue.listen((DatabaseEvent event) {
       // check moves in the values
@@ -51,7 +67,7 @@ class _TheGamePageState extends State<TheGamePage> {
             context, MaterialPageRoute(builder: (context) => const HomePage()));
       }
 
-      print("LIVE GAME [[PRE-PROCCESSED]] :: ${event.snapshot.value}");
+      // print("LIVE GAME [[PRE-PROCCESSED]] :: ${event.snapshot.value}");
     });
 
     // check and return later if game does not exists
@@ -76,15 +92,47 @@ class _TheGamePageState extends State<TheGamePage> {
     super.dispose();
   }
 
-  _updateGameData() {
+  _checkAndUpdateGameData() {
     gameData = gameData as Map<dynamic, dynamic>;
 
+    // Check game
+    // int gameStatus = _checkGame(gameData["moves"].toList());
+    // print("LIVE GAME [[GAME_STATUS]] :: $gameStatus");
+
+    print("MOVES CHECK HOBE");
+    // List<int> moves = gameData["moves"];
+    gameResult = _checkGame();
+    if (gameResult == GameResult.INCOMPLETE) {
+      _syncDataWithRT();
+      return;
+    }
+
+    if (gameState == GameResult.PLAYER_1_WINS) {
+      gameData["playing"] = null;
+      gameData["winner"] = 1;
+    } else if (gameState == GameResult.PLAYER_2_WINS) {
+      gameData["playing"] = null;
+      gameData["winner"] = 2;
+    } else if (gameState == GameResult.DRAW) {
+      gameData["playing"] = null;
+      gameData["winner"] = 0;
+    }
+    setState(() {
+      gameState = GameState.ENDED;
+    });
+    _syncDataWithRT();
+
+    print("MOVES CHECK HOYESE");
+
+    // .child("moves")
+    // .set(gameData["moves"]);
+  }
+
+  void _syncDataWithRT() {
     FirebaseDatabase.instance
         .ref("games")
         .child(widget.gameId.toString())
         .set(gameData);
-    // .child("moves")
-    // .set(gameData["moves"]);
   }
 
   _saveGameDataToCollection() {
@@ -92,6 +140,38 @@ class _TheGamePageState extends State<TheGamePage> {
   }
   _setAwaitGameDelete() {
     // TODO: set await game delete
+  }
+
+  GameResult _checkGame() {
+    /// 0 Player None -> All 0 case OR incomplete game
+    // min 5 moves needed to win, >4 zeros -> 0
+    int count_0 = 0;
+    for (int i = 0; i < gameData["moves"].length; i++) {
+      if (gameData["moves"][i] == 0) {
+        count_0++;
+      }
+    }
+    if (count_0 > 4) {
+      return GameResult.INCOMPLETE;
+    }
+
+    if (count_0 == 0) {
+      return GameResult.DRAW;
+    }
+
+    bool player1Wins = _checkBoardForPlayer(1);
+    bool player2Wins = _checkBoardForPlayer(2);
+    if (player1Wins) {
+      return GameResult.PLAYER_1_WINS;
+    } else if (player2Wins) {
+      return GameResult.PLAYER_2_WINS;
+    }
+
+    /// 1 Player 1 wins
+    /// 2 Player 2 wins
+    /// 3 Draw
+
+    return GameResult.DRAW;
   }
 
   @override
@@ -149,7 +229,6 @@ class _TheGamePageState extends State<TheGamePage> {
                     ? gameData["player2_name"]
                     : gameData["player1_name"]),
               ),
-
               const Text("vs"),
               Container(
                 decoration: (whoAmI != whoseTurn)
@@ -163,16 +242,6 @@ class _TheGamePageState extends State<TheGamePage> {
                     ? gameData["player2_name"]
                     : gameData["player1_name"]),
               ),
-              // Container(
-              //   decoration: (whoseTurn == 1)
-              //       ? BoxDecoration(
-              //           border:
-              //               Border.all(color: AppConstants.primaryTextColor),
-              //           borderRadius: BorderRadius.circular(10),
-              //         )
-              //       : null,
-              //   child: Text(gameData["player2_name"]),
-              // ),
             ],
           ),
           // Grid
@@ -190,11 +259,15 @@ class _TheGamePageState extends State<TheGamePage> {
               return GestureDetector(
                 onTap: () {
                   // ignore all wrong input for each user
+                  if (gameState == GameState.ENDED) {
+                    return;
+                  }
                   if (whoseTurn == whoAmI) {
                     if (moveVal == 0) {
                       gameData['moves'][index] = whoAmI;
                       gameData['turn'] = (whoAmI == 1) ? 2 : 1;
-                      _updateGameData();
+
+                      _checkAndUpdateGameData();
                       // parbe
                     } else {
                       // parbe na
@@ -207,17 +280,7 @@ class _TheGamePageState extends State<TheGamePage> {
                     }
                   }
                   // Onno Player er turn
-                  else {
-                    // Do Nothing
-                    // Check if game
-                    // showCustomDialog(
-                    //   context: context,
-                    //   title: "Place ${index}",
-                    //   description: "Onno Player er turn",
-                    //   popText: "Ok",
-                    // );
-                  }
-                  ;
+                  else {}
                 },
                 child: Container(
                   // padding: const EdgeInsets.all(10.0),
@@ -242,6 +305,8 @@ class _TheGamePageState extends State<TheGamePage> {
             itemCount: 9,
           ),
 
+          Text(gameState.toString()),
+
           commonOutlineButton(
               text: "end game",
               onPressed: () {
@@ -250,5 +315,49 @@ class _TheGamePageState extends State<TheGamePage> {
         ],
       ),
     ));
+  }
+
+  _checkBoardForPlayer(int moveVal) {
+    dynamic moves = gameData["moves"];
+    // 0 1 2
+    // 3 4 5
+    // 6 7 8
+
+    // 0 1 2
+    if (moves[0] == moveVal && moves[1] == moveVal && moves[2] == moveVal) {
+      return true;
+    }
+    // 3 4 5
+    if (moves[3] == moveVal && moves[4] == moveVal && moves[5] == moveVal) {
+      return true;
+    }
+    // 6 7 8
+    if (moves[6] == moveVal && moves[7] == moveVal && moves[8] == moveVal) {
+      return true;
+    }
+
+    // // 0 3 6
+    // if (moves[0] == moveVal && moves[3] == moveVal && moves[6] == moveVal) {
+    //   return true;
+    // }
+    // // 1 4 7
+    // if (moves[1] == moveVal && moves[4] == moveVal && moves[7] == moveVal) {
+    //   return true;
+    // }
+    // // 2 5 8
+    // if (moves[2] == moveVal && moves[5] == moveVal && moves[8] == moveVal) {
+    //   return true;
+    // }
+
+    // // 0 4 8
+    // if (moves[0] == moveVal && moves[4] == moveVal && moves[8] == moveVal) {
+    //   return true;
+    // }
+    // // 2 4 6
+    // if (moves[2] == moveVal && moves[4] == moveVal && moves[6] == moveVal) {
+    //   return true;
+    // }
+
+    return false;
   }
 }
