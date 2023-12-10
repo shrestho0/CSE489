@@ -58,6 +58,11 @@ class _TheGamePageState extends State<TheGamePage> {
       // if not then return to home page
 
       if (_gd != null) {
+        if (_gd["winner"] != null) {
+          setState(() {
+            gameState = GameState.ENDED;
+          });
+        }
         setState(() {
           gameData = _gd;
         });
@@ -105,22 +110,22 @@ class _TheGamePageState extends State<TheGamePage> {
     if (gameResult == GameResult.INCOMPLETE) {
       _syncDataWithRT();
       return;
+    } else {
+      if (gameResult == GameResult.PLAYER_1_WINS) {
+        gameData["playing"] = false;
+        gameData["winner"] = 1;
+      } else if (gameResult == GameResult.PLAYER_2_WINS) {
+        gameData["playing"] = false;
+        gameData["winner"] = 2;
+      } else if (gameResult == GameResult.DRAW) {
+        gameData["playing"] = false;
+        gameData["winner"] = 0;
+      }
+      _syncDataWithRT();
+      // setState(() {
+      //   gameState = GameState.ENDED;
+      // });
     }
-
-    if (gameState == GameResult.PLAYER_1_WINS) {
-      gameData["playing"] = null;
-      gameData["winner"] = 1;
-    } else if (gameState == GameResult.PLAYER_2_WINS) {
-      gameData["playing"] = null;
-      gameData["winner"] = 2;
-    } else if (gameState == GameResult.DRAW) {
-      gameData["playing"] = null;
-      gameData["winner"] = 0;
-    }
-    setState(() {
-      gameState = GameState.ENDED;
-    });
-    _syncDataWithRT();
 
     print("MOVES CHECK HOYESE");
 
@@ -151,12 +156,10 @@ class _TheGamePageState extends State<TheGamePage> {
         count_0++;
       }
     }
+
+    // Don't care about this now
     if (count_0 > 4) {
       return GameResult.INCOMPLETE;
-    }
-
-    if (count_0 == 0) {
-      return GameResult.DRAW;
     }
 
     bool player1Wins = _checkBoardForPlayer(1);
@@ -165,6 +168,10 @@ class _TheGamePageState extends State<TheGamePage> {
       return GameResult.PLAYER_1_WINS;
     } else if (player2Wins) {
       return GameResult.PLAYER_2_WINS;
+    }
+
+    if (count_0 == 0) {
+      return GameResult.DRAW;
     }
 
     /// 1 Player 1 wins
@@ -336,27 +343,27 @@ class _TheGamePageState extends State<TheGamePage> {
       return true;
     }
 
-    // // 0 3 6
-    // if (moves[0] == moveVal && moves[3] == moveVal && moves[6] == moveVal) {
-    //   return true;
-    // }
-    // // 1 4 7
-    // if (moves[1] == moveVal && moves[4] == moveVal && moves[7] == moveVal) {
-    //   return true;
-    // }
-    // // 2 5 8
-    // if (moves[2] == moveVal && moves[5] == moveVal && moves[8] == moveVal) {
-    //   return true;
-    // }
+    // 0 3 6
+    if (moves[0] == moveVal && moves[3] == moveVal && moves[6] == moveVal) {
+      return true;
+    }
+    // 1 4 7
+    if (moves[1] == moveVal && moves[4] == moveVal && moves[7] == moveVal) {
+      return true;
+    }
+    // 2 5 8
+    if (moves[2] == moveVal && moves[5] == moveVal && moves[8] == moveVal) {
+      return true;
+    }
 
-    // // 0 4 8
-    // if (moves[0] == moveVal && moves[4] == moveVal && moves[8] == moveVal) {
-    //   return true;
-    // }
-    // // 2 4 6
-    // if (moves[2] == moveVal && moves[4] == moveVal && moves[6] == moveVal) {
-    //   return true;
-    // }
+    // 0 4 8
+    if (moves[0] == moveVal && moves[4] == moveVal && moves[8] == moveVal) {
+      return true;
+    }
+    // 2 4 6
+    if (moves[2] == moveVal && moves[4] == moveVal && moves[6] == moveVal) {
+      return true;
+    }
 
     return false;
   }
