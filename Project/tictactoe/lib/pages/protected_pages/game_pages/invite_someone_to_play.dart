@@ -35,11 +35,12 @@ class _InviteSomeonePageState extends State<InviteSomeonePage> {
               context,
               MaterialPageRoute(
                 builder: (context) => ConfirmMatchPage(
-                  gameType: GameType.INVITATION,
+                  // gameType: GameType.INVITATION,
                   gameId: change.data()!["game_id"],
                   who_joined: 1,
                   name_who: user!.displayName ?? "you",
                   uid_who: user!.uid,
+                  gameMatchType: GameMatchType.FIRST_TIME,
                 ),
               ));
         } else {

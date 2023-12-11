@@ -62,7 +62,7 @@ class _JoinWithInvitationCodePageState
     });
   }
 
-  void handleInvitationAccept() {
+  void handleInvitationAccept() async {
     unfocusTextInputFields();
 
     String invitationCode = inviteEditingController.text;
@@ -72,7 +72,7 @@ class _JoinWithInvitationCodePageState
     }
 
     // Check if invitation code exists
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection("Invitation")
         .where("invitation_code", isEqualTo: invitationCode)
         .get()
@@ -105,11 +105,10 @@ class _JoinWithInvitationCodePageState
           // Create game
           // game page will create realtime with the data it has
 
-          FirebaseFirestore.instance.collection("Game").add({
+          FirebaseFirestore.instance.collection("TempGame").add({
             "player1": inviteData["sender_uid"],
             "player2": user!.uid,
-            "winner":
-                -1, // 1 for player1, 2 for player2, 0 for draw, -1 for incomplete
+            // 1 for player1, 2 for player2, 0 for draw, -1 for incomplete
             // "startTime": DateTime.now(), // game loading page theke update hobe, now confirm match page
             // "endTime":  DateTime.now(), // the game page theke loading hobe
           }).then((value) {
@@ -127,11 +126,12 @@ class _JoinWithInvitationCodePageState
               context,
               MaterialPageRoute(
                 builder: (context) => ConfirmMatchPage(
-                  gameType: GameType.INVITATION,
+                  // gameType: GameType.INVITATION,
                   gameId: value.id,
                   who_joined: 2,
                   name_who: user!.displayName ?? "you",
                   uid_who: user!.uid,
+                  gameMatchType: GameMatchType.FIRST_TIME,
                 ),
               ),
             );

@@ -474,3 +474,5 @@ String randomString(int len) {
 void unfocusTextInputFields() {
   SystemChannels.textInput.invokeMethod('TextInput.hide');
 }
+
+//

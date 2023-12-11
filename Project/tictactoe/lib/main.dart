@@ -9,7 +9,6 @@ import 'package:tictactoe/pages/auth_pages/register_page.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/find_players_online.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/invite_someone_to_play.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/join_with_invitation_code_page.dart';
-import 'package:tictactoe/pages/protected_pages/game_pages/post_game_page.dart';
 import 'package:tictactoe/pages/protected_pages/home_page.dart';
 import 'package:tictactoe/pages/protected_pages/misc_pages/leaderboard.dart';
 import 'package:tictactoe/pages/protected_pages/misc_pages/personal_game_record.dart';
@@ -88,7 +87,6 @@ class MyApp extends StatelessWidget {
               const JoinWithInvitationCodePage(),
           "/invite-someone-to-play": (context) => const InviteSomeonePage(),
           // "/confirm-match": (context) => const ConfirmMatchPage(), // Handled from other pages
-          "/rematch-or-end-session": (context) => const PostGamePage(),
           // "/the-game-page": (context) => TheGamePage(),
 
           // Misc Pages

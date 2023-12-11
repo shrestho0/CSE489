@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tictactoe/services/base_services.dart';
+import 'package:tictactoe/utils/Constants.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
 enum PreLoginStates { Nothing, AwaitLogin, Loading, Error }
@@ -106,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: 25,
               // fontFamily: "IBMPlexMono",
             ),
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(10),
               child: Text(
                 " or ",
@@ -114,28 +115,29 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             appHomeButton(
-                title: "Login/Register with Google",
-                icon: const Image(
-                  image: AssetImage('assets/google_icon.png'),
-                  height: 20,
-                  width: 20,
-                ),
-                onPressed: () async {
-                  Future<bool> status = BaseServices().signInWithGoogle();
+              title: "Login/Register with Google",
+              icon: const Image(
+                image: AssetImage('assets/google_icon.png'),
+                height: 20,
+                width: 20,
+              ),
+              onPressed: () async {
+                Future<bool> status = BaseServices().signInWithGoogle();
 
-                  if (await status) {
-                    Navigator.pushNamed(context, "/home");
-                  } else {
-                    print("error");
-                  }
-                },
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                borderRadius: 25,
-                // fontFamily: "RetroGaming",
-                fontSize: 10),
+                if (await status) {
+                  print("user logged in successfully");
+                  AppConstants.backToHome(context);
+                  // Navigator.pushNamed(context, "/home");
+                } else {
+                  print("error");
+                }
+              },
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              borderRadius: 25,
+              // fontFamily: "RetroGaming",
+              fontSize: 10,
+            ),
           ],
         ),
       ),
