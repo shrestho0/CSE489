@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/confirm_match_page.dart';
+import 'package:tictactoe/services/game_services.dart';
 import 'package:tictactoe/utils/Types.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
@@ -122,15 +124,18 @@ class _JoinWithInvitationCodePageState
               "status": "received",
               "game_id": value.id,
             });
+
+            context.read<GameServices>().setPlayerJoiningAs(2);
+            context.read<GameServices>().createRTGame(gameId: value.id);
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ConfirmMatchPage(
                   // gameType: GameType.INVITATION,
                   gameId: value.id,
-                  who_joined: 2,
-                  name_who: user!.displayName ?? "you",
-                  uid_who: user!.uid,
+                  // who_joined: 2,
+                  // name_who: user!.displayName ?? "you",
+                  // uid_who: user!.uid,
                   gameMatchType: GameMatchType.FIRST_TIME,
                 ),
               ),

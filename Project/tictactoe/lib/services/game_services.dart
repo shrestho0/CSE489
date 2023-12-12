@@ -6,41 +6,67 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/the_game_page.dart';
 import 'package:tictactoe/utils/Constants.dart';
+import 'package:tictactoe/utils/Utils.dart';
 
 class GameServices extends ChangeNotifier {
   bool _loading = false;
   get loading => _loading;
-
   void setLoading(bool value) {
     _loading = value;
     notifyListeners();
   }
 
-  void createRTGame({
-    required String gameId,
-    required int who_joined,
-    required String name_who,
-    required String uid_who,
-  }) {
+  late String _playerName;
+  get playerName => _playerName;
+  void setPlayerName(String value) {
+    _playerName = value;
+  }
+
+  late String _playerUID;
+  get playerUID => _playerUID;
+  void setPlayerUID(String value) {
+    _playerUID = value;
+  }
+
+  late int _playerJoiningAs;
+  get playerJoiningAs => _playerJoiningAs;
+
+  void setPlayerJoiningAs(int value) {
+    _playerJoiningAs = value;
+  }
+
+  void resetPlayerJoiningAs() {
+    _playerJoiningAs = 0;
+  }
+
+  void createRTGame({required String gameId, String? oldGameId}) {
     // game data about game
+    print("[[ DEBUG:  createRTGame ]] Creating real time game with $gameId");
 
     DatabaseReference databaseReference =
         FirebaseDatabase.instance.ref("games").child(gameId);
 
     Map<String, Object> newGameData = {
-      "turn": Random().nextInt(2) + 1,
+      "turn": Random().nextInt(2) + 1, // find a random starter
       "moves": [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      "playing": false,
+      "playing": false, // the playing state for the confirm match page
+      // if both player rematch == -1, wait
+      // if both player rematch == 1, then start new game
+      // if any players rematch == 0, then go to home page
+      "player1_rematch": 0, // 0 for not sure/ no
+      "player2_rematch": 0, // 0 for not sure/no, 1 for yes
+      "re_match_id": randomString(16),
+      "old_game_id": oldGameId ?? "", // new game id for rematch
     };
 
-    if (who_joined == 1) {
+    if (_playerJoiningAs == 1) {
       newGameData["player1_joined"] = true;
-      newGameData["player1_name"] = name_who;
-      newGameData["player1_id"] = uid_who;
-    } else if (who_joined == 2) {
+      newGameData["player1_name"] = _playerName;
+      newGameData["player1_id"] = _playerUID;
+    } else if (_playerJoiningAs == 2) {
       newGameData["player2_joined"] = true;
-      newGameData["player2_name"] = name_who;
-      newGameData["player2_id"] = uid_who;
+      newGameData["player2_name"] = _playerName;
+      newGameData["player2_id"] = _playerUID;
     }
 
     databaseReference.once().then((event) {
@@ -61,11 +87,14 @@ class GameServices extends ChangeNotifier {
     });
   }
 
-  Future<void> _deleteRTGameAndAddToGameHistory(
+  deleteRTGameAndAddToGameHistory(
     String gameId,
-    DatabaseReference? ref,
-  ) async {
+  ) {
     /// Check if this really needs to be async or not
+    ///
+    DatabaseReference ref =
+        FirebaseDatabase.instance.ref("games").child(gameId);
+
     ref?.once().then((event) {
       if (event.snapshot.value != null) {
         dynamic gameData = event.snapshot.value;
@@ -96,10 +125,16 @@ class GameServices extends ChangeNotifier {
 
   /// These methods don't use any state of this class, just using to keep game services organized
   /// Make these static
-  void quitGame(context, gameId, ref) async {
+  void quitGame(context, String gameId, String? oldGameId) async {
+    // DatabaseReference ref =
+    //     FirebaseDatabase.instance.ref("games").child(gameId);
+
     print("DEBUG: Quitting Game");
     //  context.read<GameServices>().deleteRTGameAndAddToGameHistory(widget.gameId, ref);
-    await _deleteRTGameAndAddToGameHistory(gameId, ref);
+    if (oldGameId != null) {
+      await deleteRTGameAndAddToGameHistory(oldGameId);
+    }
+    await deleteRTGameAndAddToGameHistory(gameId);
 
     // Navigator.popUntil(context, (route) => false);
     // Navigator.push(
@@ -109,12 +144,95 @@ class GameServices extends ChangeNotifier {
     AppConstants.backToHome(context);
   }
 
-  void rematchGame(
-    context,
-    gameData,
-  ) {
+  void rematchGame(context, gameData, oldGameId) {
+    // If both players rematch,
+    // then create new game data in realtime db
+    // navigate to the game page from the game page
+
     // User game data should be retrieved from this service
     print("DEBUG: Re-matching Game");
+    DatabaseReference refGames = FirebaseDatabase.instance.ref("games");
+    DatabaseReference ref = refGames.child(oldGameId);
+
+    // Ref ee rematch_id thakle game thakle
+    dynamic oldGameUpdatedData = {};
+
+    if (_playerJoiningAs == 1) {
+      print("DEBUG: Re-matching Game as player 1");
+      // ref.update({
+
+      oldGameUpdatedData["player1_rematch"] = 1;
+      oldGameUpdatedData["player2_rematch"] = gameData["player2_rematch"];
+      // });
+    } else if (_playerJoiningAs == 2) {
+      print("DEBUG: Re-matching Game as player 2");
+
+      oldGameUpdatedData["player2_rematch"] = 1;
+      oldGameUpdatedData["player1_rematch"] = gameData["player1_rematch"];
+    }
+
+    // String newGameId = refGames.push().key!;
+    // if ((gameData["player1_rematch"] == 1 && _playerJoiningAs == 2) ||
+    //     (gameData["player2_rematch"] == 1 && _playerJoiningAs == 1)) {
+    //   // Here both player joined for re-match
+    //   // create game with new game id and prev game data;
+    //   oldGameUpdatedData["re_match_id"] = randomString(20);
+    // }
+    // if (gameData["re_match_id"] != null || gameData["re_match_id"] != "") {
+    //   oldGameUpdatedData["re_match_id"] = gameData["re_match_id"];
+    // } else {
+    //   oldGameUpdatedData["re_match_id"] = randomString(20);
+    // }
+
+    if (oldGameUpdatedData["player1_rematch"] == 1 &&
+        oldGameUpdatedData["player2_rematch"] == 1) {
+      // Here both player joined for re-match
+      // create game with new game id and prev game data;
+      print(
+          "DEBUG: Players joined for new game ${oldGameUpdatedData["player1_rematch"]} ${oldGameUpdatedData["player2_rematch"]} with New Game ID: ${oldGameUpdatedData['re_match_id']}");
+    }
+
+    ref.update({
+      "player1_rematch": oldGameUpdatedData["player1_rematch"],
+      "player2_rematch": oldGameUpdatedData["player2_rematch"],
+      // "re_match_id": oldGameUpdatedData["re_match_id"] ?? "",
+    });
+
+    print("DEBUG: Creating createRT Game from rematchGame");
+    // print("DEBUG: REMATCH ID: ${gameData["re_match_id"]}");
+    createRTGame(
+      gameId: gameData["re_match_id"],
+      oldGameId: oldGameId,
+    );
+    print(
+        "DEBUG: Created createRT Game from rematchGame ${gameData} ${oldGameUpdatedData}");
+    // here both players want a
+
+    // Create new game with prev data
+
+    /// Update re-match status for both players,
+    /// if both players rematch, then create new game
+    /// can be handled from game page
+    ///
+    // create new game in realtime with prev data, which all are in this class
+    // create new instance in realtime db
+    // String newGameId = FirebaseDatabase.instance.ref("games").set() ;
+    // createRTGame(gameId: newGameId);
+
+    // print("DEBUG: Re-matching Game with new game id: $");
+    // then push to confirm match page
+    // Navigator.push(
+    // context,
+    // MaterialPageRoute(
+    //   builder: (context) => ConfirmMatchPage(
+    //     // gameType: GameType.INVITATION,
+    //     gameId: change.data()!["game_id"],
+    //     // who_joined: 1,
+    //     // name_who: user!.displayName ?? "you",
+    //     // uid_who: user!.uid,
+    //     gameMatchType: GameMatchType.FIRST_TIME,
+    //   ),
+    // ));
   }
 
   void updateDataWithRT(gameId, gameData) {
@@ -199,6 +317,7 @@ class GameServices extends ChangeNotifier {
   }
 
   void showGameErrorMsg({context, text, popText, String desc = "", callback}) {
+    // COnvert this to flushbar or whatever needed later
     final snackBar = SnackBar(
       content: Text(text),
       // action: SnackBarAction(

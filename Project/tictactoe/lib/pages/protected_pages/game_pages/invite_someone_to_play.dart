@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/confirm_match_page.dart';
+import 'package:tictactoe/services/game_services.dart';
 import 'package:tictactoe/utils/Constants.dart';
 import 'package:tictactoe/utils/Types.dart';
 import 'package:tictactoe/utils/Utils.dart';
@@ -31,15 +33,19 @@ class _InviteSomeonePageState extends State<InviteSomeonePage> {
         if (change.data()!["status"] == "received" &&
             change.data()!["receiver_uid"] != "" &&
             change.data()!["game_id"] != "") {
+          // set player name for game
+
+          // context.read()
+          context.read<GameServices>().setPlayerJoiningAs(1);
           Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ConfirmMatchPage(
                   // gameType: GameType.INVITATION,
                   gameId: change.data()!["game_id"],
-                  who_joined: 1,
-                  name_who: user!.displayName ?? "you",
-                  uid_who: user!.uid,
+                  // who_joined: 1,
+                  // name_who: user!.displayName ?? "you",
+                  // uid_who: user!.uid,
                   gameMatchType: GameMatchType.FIRST_TIME,
                 ),
               ));
@@ -72,6 +78,7 @@ class _InviteSomeonePageState extends State<InviteSomeonePage> {
     }).then((value) {
       listenToInvitationChange(value.id);
     });
+    context.read<GameServices>().setPlayerJoiningAs(1);
 
     // TODO: Delete all old invitations
     // This also can be done manually using a cronjob
@@ -126,58 +133,7 @@ class _InviteSomeonePageState extends State<InviteSomeonePage> {
                   style: TextStyle(color: AppConstants.primaryTextColor),
                 ),
               ),
-              Text("Waiting for opponent..."),
-              // Firestore Stream on Invitation
-              // StreamBuilder<QuerySnapshot>(
-              //   stream: FirebaseFirestore.instance
-              //       .collection("Invitation")
-              //       .where("invitation_code", isEqualTo: invitationCode)
-              //       .snapshots(),
-              //   builder: (context, snapshot) {
-              //     if (snapshot.hasData) {
-              //       if (snapshot.data!.docs.isEmpty) {
-              //         return Text("Some error occured, please retry");
-              //       }
-              //       var inviteData = snapshot.data!.docs[0];
-              //       if (inviteData["status"] == "received" &&
-              //           inviteData["receiver_uid"] != "" &&
-              //           inviteData["game_id"] != "") {
-              //         // Navigator.push(
-              //         //   context,
-              //         //   MaterialPageRoute(
-              //         //     builder: (context) => ConfirmMatchPage(
-              //         //       gameType: GameType.INVITATION,
-              //         //       gameId: inviteData["game_id"],
-              //         //     ),
-              //         //   ),
-              //         // );
-
-              //         return Column(
-              //           children: [
-              //             Text("Start Game"),
-              //             appHomeButton(
-              //                 title: "Start Game",
-              //                 icon: Icon(Icons.play_arrow),
-              //                 onPressed: () {
-              //                   Navigator.push(
-              //                       context,
-              //                       MaterialPageRoute(
-              //                         builder: (context) => ConfirmMatchPage(
-              //                           gameType: GameType.INVITATION,
-              //                           gameId: inviteData["game_id"],
-              //                         ),
-              //                       ));
-              //                 }),
-              //           ],
-              //         );
-              //       } else {
-              //         return Text("Waiting for opponent to accept...");
-              //       }
-              //     } else {
-              //       return Text("Some error occured, please retry");
-              //     }
-              //   },
-              // ),
+              const Text("Waiting for opponent..."),
             ],
           ),
         ));

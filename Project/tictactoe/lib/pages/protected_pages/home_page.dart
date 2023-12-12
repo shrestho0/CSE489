@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:tictactoe/services/game_services.dart';
 import 'package:tictactoe/utils/Constants.dart';
 import 'package:tictactoe/utils/Utils.dart';
 
@@ -13,6 +15,10 @@ class HomePage extends StatelessWidget {
     SystemChannels.textInput.invokeMethod('TextInput.hide');
 
     User? user = FirebaseAuth.instance.currentUser;
+
+    context.read<GameServices>().setPlayerName(user!.displayName ?? "you");
+    context.read<GameServices>().setPlayerUID(user.uid);
+
     print("${user}");
 
     return Scaffold(
@@ -52,9 +58,9 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 ClipOval(
-                  child: user?.photoURL != null
+                  child: user.photoURL != null
                       ? Image.network(
-                          user!.photoURL.toString(),
+                          user.photoURL.toString(),
                           height: 50,
                           width: 50,
                         )
@@ -72,7 +78,7 @@ class HomePage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Text(
-                "welcome, ${user?.displayName}",
+                "welcome, ${context.read<GameServices>().playerName}",
                 style: const TextStyle(
                   color: AppConstants.primaryTextColor,
                   // fontSize: 20.0,

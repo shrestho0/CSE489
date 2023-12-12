@@ -23,13 +23,22 @@ enum GameResult {
   DRAW,
 }
 
+enum WhoWantsARematch { NONE, OTHER_PLAYER, BOTH_PLAYERS }
+
 class TheGamePage extends StatefulWidget {
   final String gameId;
   final int sessionGameNumber;
+  final String prevGameId;
+  final int player1Won;
+  final int player2Won;
+
   const TheGamePage({
     super.key,
     required this.gameId,
     required this.sessionGameNumber,
+    required this.player1Won,
+    required this.player2Won,
+    required this.prevGameId,
   });
 
   @override
@@ -43,10 +52,21 @@ class _TheGamePageState extends State<TheGamePage> {
   dynamic gameData;
   dynamic winningMoves;
   dynamic winningPlayer;
+  dynamic otherPlayerWantsRematch;
+  dynamic bothPlayersWantRematch;
+  WhoWantsARematch whoWantsARematch = WhoWantsARematch.NONE;
+
+  dynamic currentGameId;
+
+  int player1WonXX = 0;
+  int player2WonXX = 0;
 
   DatabaseReference? ref;
 
   void initRTConn() {
+    /// Jhamela hocche, set state shesh ee kora lagbe.
+    /// set state ee jawar age condition check korte hobe if default ee true thakbe, user onno function ee jawar age false kore diye jabe
+    /// kaj korbe ki na bujhte parchi ne.
     ref =
         FirebaseDatabase.instance.ref("games").child(widget.gameId.toString());
 
@@ -61,41 +81,164 @@ class _TheGamePageState extends State<TheGamePage> {
       // if not then return to home page
 
       if (_gd != null) {
+        // handle re-match here
+
+        // game data age shob set korbe
+        setState(() {
+          gameData = _gd;
+        });
+
+        WhoWantsARematch? whoWants;
+
+        if (gameState == GameState.ENDED) {
+          // re_match_id
+          // if (gameData["re_match_id"] != null) {
+          //   print(
+          //       "Re-match id paisi, ekhon etake new game ee redirect korte hobe");
+
+          //   // update and delete korte hobe like quit game
+
+          //   // Navigator.pushReplacement(context, MaterialPageRoute(
+          //   //   builder: (context) {
+          //   //     // TheGamePage takes game id, user1 displayname, user2 di
+
+          //   //     return TheGamePage(
+          //   //         gameId: gameData["re_match_id"], sessionGameNumber: 1);
+          //   //   },
+          //   // ));
+          // }
+
+          bool player1WantsRematch = false;
+          bool player2WantsRematch = false;
+
+          if (_gd["player1_rematch"] != null) {
+            player1WantsRematch = _gd["player1_rematch"] == 1;
+          }
+
+          if (_gd["player2_rematch"] != null) {
+            player2WantsRematch = _gd["player2_rematch"] == 1;
+          }
+
+          print(
+              "[[[ rematch check ]]] $player1WantsRematch $player2WantsRematch");
+
+          if (player1WantsRematch && player2WantsRematch) {
+            // Both players want a rematch
+
+            // print(
+            //     "[[[ both player wants a re-match ${player1WantsRematch} ${player2WantsRematch} ]]]");
+
+            //////////// Make this work here  //////////////
+            /// Try to delete the current game data
+            // Navigator.popUntil(context, (route) => nul);
+
+            var prevGameId = widget.prevGameId;
+            var rematchId = gameData["re_match_id"];
+            var gameSessionNumber = widget.sessionGameNumber;
+            var didPlayer1Won = gameData["winner"] == 1
+                ? widget.player1Won + 1
+                : widget.player1Won;
+
+            var didPlayer2Won = gameData["winner"] == 2
+                ? widget.player2Won + 1
+                : widget.player2Won;
+
+            if (_gd["old_game_id"] != "") {
+///////////////
+              // THIS LINE WAS CHANGEDS
+              /// WAS WORKING HERE
+///////////////
+
+              context
+                  .read<GameServices>()
+                  .deleteRTGameAndAddToGameHistory(_gd["old_game_id"]);
+              print("Game deleted from realtime database");
+              ref?.update({
+                "old_game_id": "",
+              });
+              print("old_game_id updated to empty");
+            }
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  print("\nBefore creating game\n");
+
+                  return TheGamePage(
+                    // what we can do is,
+                    // on each round end, we can take the game data from here and save in firestore as GameData
+                    // on re-match, we can create new game from current game data and save this one to firestore as GameData
+                    // we can store the session number in the firestore sessions collection too. But, that can be done later
+                    // need to finish this one first.
+                    // for now, we will send the sessionGameNumber to next next pages until the new game.
+                    // finally destory the sessionGameNumber, for now of course
+                    prevGameId: prevGameId,
+                    gameId: rematchId,
+                    sessionGameNumber: gameSessionNumber + 1,
+                    player1Won: didPlayer1Won,
+                    player2Won: didPlayer2Won,
+                  );
+                },
+              ),
+            );
+            //////////// Ei porjonto kaj kore  //////////////
+
+            whoWants = WhoWantsARematch.BOTH_PLAYERS;
+
+            // Create
+          } else if (player1WantsRematch || player2WantsRematch) {
+            // re-match er jonno ask korbe
+
+            // TheGamePage(
+            //   gameId: widget.gameId,
+            //   sessionGameNumber: widget.sessionGameNumber + 1,
+            // );
+
+            if (context.read<GameServices>().playerJoiningAs == 1 &&
+                player2WantsRematch) {
+              whoWants = WhoWantsARematch.OTHER_PLAYER;
+            } else if (context.read<GameServices>().playerJoiningAs == 2 &&
+                player1WantsRematch) {
+              whoWants = WhoWantsARematch.OTHER_PLAYER;
+            }
+          } else {
+            // we don't care about this now
+            // quit korte pare
+            // player ovabei thakbe
+          }
+        }
+
+        // handle player win here
         if (_gd["winner"] == 1 || _gd["winner"] == 2 || _gd["winner"] == 3) {
           setState(() {
             winningMoves = _gd["winningMoves"];
             winningPlayer = _gd["winner"];
 
-            /// TODO: forgot what the heck these were
-            /// Check and fix later
-            // print("Winning Moves :: $winningMoves");
-            // if (_gd["winner"] == 1) {
-            //   winnerData = {
-            //     "winner_name": _gd["player1_name"],
-            //     "winner_id": _gd["player1_id"],
-            //   };
-            // } else if (_gd["winner"] == 2) {
-            //   winnerData = {
-            //     "winner_name": _gd["player2_name"],
-            //     "winner_id": _gd["player2_id"],
-            //   };
-            // } else {
+            if (winningPlayer == 1) {
+              player1WonXX = widget.player1Won + 1;
+            } else if (winningPlayer == 2) {
+              player2WonXX = widget.player2Won + 1;
+            }
 
-            //   winnerData = {
-            //     "winner_name": "Draw",
-            //     "winner_id": "Draw",
-            //   };
-            // }
+            whoWantsARematch = whoWants ?? WhoWantsARematch.NONE;
             gameState = GameState.ENDED;
           });
         }
-        setState(() {
-          gameData = _gd;
-        });
       } else {
         // TODO: this works, don't it now.
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const HomePage()));
+        // Check if parent exists
+        // If yes, delete that too
+        // context.read<GameServices>().quitGame(context, widget.gameId);
+        // if (mounted) {
+        // Navigator.push(
+        //     context, MaterialPageRoute(builder: (context) => const HomePage()));
+
+        print("Game data is null || Mounted $mounted");
+        // Back to home
+        // eta age thekei thik moto kaj korchilo
+        // don't get confused again.
+        AppConstants.backToHome(context);
+        // }
       }
 
       // print("LIVE GAME [[PRE-PROCCESSED]] :: ${event.snapshot.value}");
@@ -111,11 +254,18 @@ class _TheGamePageState extends State<TheGamePage> {
   void initState() {
     // gameData["awaitClosing"] = false;
     super.initState();
+
+    setState(() {
+      player1WonXX = widget.player1Won;
+      player2WonXX = widget.player2Won;
+      currentGameId = widget.gameId;
+    });
+
     initRTConn();
   }
 
   @override
-  void dispose() async {
+  void dispose() {
     // Better code if whatever
     // Future.delayed(Duration.zero, () async {
     //   await doingSomething().then((value) => print(value));
@@ -123,6 +273,10 @@ class _TheGamePageState extends State<TheGamePage> {
     // TODO: Save the game data before deleting
     // Deletes the current game data
     print("[[ DEBUG ]]: Game Disposed");
+    // context
+    //     .read<GameServices>()
+    //     .deleteRTGameAndAddToGameHistory(widget.gameId, ref);
+    print("[[ DEBUG ]]: Game Deleted");
 
     //// ALL OF THESE WILL BE HANDLED IN GAME SERVICES
     // Update the game from Game Collection with game id
@@ -135,6 +289,8 @@ class _TheGamePageState extends State<TheGamePage> {
     /// jodi user back kore then, send them to home
     /// jodi user app off kore dey, pera nei.
     /// amader cloud function orphaned data gulo check kore delete kore debe.
+
+    // context.read<GameServices>().quitGame(context, widget.gameId, ref);
     super.dispose();
   }
 
@@ -144,7 +300,7 @@ class _TheGamePageState extends State<TheGamePage> {
     // Check game
     // int gameStatus = _checkGame(gameData["moves"].toList());
     // print("LIVE GAME [[GAME_STATUS]] :: $gameStatus");
-
+    // "player1"
     // print("MOVES CHECK HOBE");
     // List<int> moves = gameData["moves"];
     // var (gameResult, winningMovesX) = _checkGame(gameData);
@@ -176,69 +332,8 @@ class _TheGamePageState extends State<TheGamePage> {
       context
           .read<GameServices>()
           .updateDataWithRT(widget.gameId.toString(), gameData);
-      // setState(() {
-      //   gameState = GameState.ENDED;
-      // });
     }
-
-    // print("MOVES CHECK HOYESE");
-
-    // .child("moves")
-    // .set(gameData["moves"]);
   }
-
-  // void _updateDataWithRT() {
-  //   FirebaseDatabase.instance
-  //       .ref("games")
-  //       .child(widget.gameId.toString())
-  //       .set(gameData);
-  // }
-
-  /// TODO: Handle will pop later
-
-  // Future<bool> _onWillPop() async {
-  //   if(gameState == GameState.ENDED) {
-  //     return true;
-  //   }
-  //   else {
-  //     (await  showDialog(context: context, builder: (context) => AlertDialog(
-  //       title: const Text("Are you sure?"),
-  //       content: const Text("Do you want to exit the game?"),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.of(context).pop(false),
-  //           child: const Text("No"),    // context.read<GameServices>().deleteRTGame(widget.gameId, ref);
-
-  //         ),
-  //         TextButton(
-  //           onPressed: () => Navigator.of(context).pop(true),
-  //           child: const Text("Yes"),
-  //         ),
-  //       ],
-  //     ))) ?? false;
-  //   // return (await showDialog(
-  //   //   context: context,
-  //   // ));
-  //   //   context: context,
-  //   //   builder: (context) new AlertDialog(
-  //   //     title: new Text('Are you sure?'),
-  //   //     content: new Text('Do you want to exit an App'),
-  //   //     actions: <Widget>[
-  //   //       TextButton(
-  //   //         onPressed: () => Navigator.of(context).pop(false),
-  //   //         child: new Text('No'),
-  //   //       ),
-  //   //       TextButton(
-  //   //         onPressed: () => Navigator.of(context).pop(true),
-  //   //         child: new Text('Yes'),
-  //   //       ),
-  //   //     ],
-  //   //   ),
-  //   // )) ??
-  //   // return false
-
-  //   // }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -277,8 +372,9 @@ class _TheGamePageState extends State<TheGamePage> {
           // mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 100),
+            SizedBox(height: 50),
             Text("The Game"),
+            Text("Game Session: ${widget.sessionGameNumber}"),
             SizedBox(height: 50),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -290,17 +386,24 @@ class _TheGamePageState extends State<TheGamePage> {
                       (whoAmI == whoseTurn && gameState != GameState.ENDED)
                           ? AppConstants.gamePlayingActiveDecoraton
                           : AppConstants.gamePlayingInactiveDecoraton,
-                  child: Text(
-                    user?.uid == gameData["player2_id"]
-                        ? gameData["player2_name"]
-                        : gameData["player1_name"],
-                    style:
-                        ((gameData["winner"] == 1 || gameData["winner"] == 2) &&
+                  child: Column(
+                    children: [
+                      Text(
+                        user?.uid == gameData["player2_id"]
+                            ? (gameData["player2_name"] ?? "you")
+                            : (gameData["player1_name"] ?? ""),
+                        style: ((gameData["winner"] == 1 ||
+                                    gameData["winner"] == 2) &&
                                 gameData["winner"] == whoAmI)
                             ? AppConstants.gameEndWinnerTextStyle
                             : (gameData["winner"] == 3)
                                 ? AppConstants.gameEndDrawTextStyle
                                 : AppConstants.gameEndLoserTextStyle,
+                      ),
+                      Text(user?.uid == (gameData["player2_id"] ?? "")
+                          ? "$player2WonXX"
+                          : "$player1WonXX")
+                    ],
                   ),
                 ),
                 const Text("vs"),
@@ -310,18 +413,25 @@ class _TheGamePageState extends State<TheGamePage> {
                       (whoAmI != whoseTurn && gameState != GameState.ENDED)
                           ? AppConstants.gamePlayingActiveDecoraton
                           : AppConstants.gamePlayingInactiveDecoraton,
-                  child: Text(
-                    user?.uid != gameData["player2_id"]
-                        ? gameData["player2_name"]
-                        : gameData["player1_name"],
-                    style:
-                        ((gameData["winner"] == 1 || gameData["winner"] == 2) &&
-                                gameData["winner"] != whoAmI)
-                            ? AppConstants.gameEndWinnerTextStyle
-                            : (gameData["winner"] == 3)
-                                ? AppConstants.gameEndDrawTextStyle
-                                : AppConstants.gameEndLoserTextStyle,
-                  ),
+                  child: Column(children: [
+                    Text(
+                      user?.uid != (gameData["player2_id"] ?? "")
+                          ? (gameData["player2_name"] ?? "you")
+                          : (gameData["player1_name"] ?? ""),
+                      style: ((gameData["winner"] == 1 ||
+                                  gameData["winner"] == 2) &&
+                              gameData["winner"] != whoAmI)
+                          ? AppConstants.gameEndWinnerTextStyle
+                          : (gameData["winner"] == 3)
+                              ? AppConstants.gameEndDrawTextStyle
+                              : AppConstants.gameEndLoserTextStyle,
+                    ),
+                    Text(
+                      user?.uid != (gameData["player2_id"] ?? "")
+                          ? "$player2WonXX"
+                          : "$player1WonXX",
+                    )
+                  ]),
                 ),
               ],
             ),
@@ -339,7 +449,8 @@ class _TheGamePageState extends State<TheGamePage> {
                 int moveVal = gameData['moves'][index];
                 return GestureDetector(
                   onTap: () {
-                    // ignore all wrong inputs
+                    // Game shesh
+                    // Input nebe and snackbar dekhabe
                     if (gameState == GameState.ENDED) {
                       context.read<GameServices>().showGameErrorMsg(
                             text: "Game ended",
@@ -350,7 +461,10 @@ class _TheGamePageState extends State<TheGamePage> {
                             //   print("Game Ended mf");
                             // },
                           );
+
+                      return;
                     }
+
                     if (whoseTurn == whoAmI) {
                       if (moveVal == 0) {
                         gameData['moves'][index] = whoAmI;
@@ -364,9 +478,6 @@ class _TheGamePageState extends State<TheGamePage> {
                               text: "Not allowed",
                               popText: "Close",
                               context: context,
-                              callback: () {
-                                print("Game Ended mf");
-                              },
                             );
                       }
                     }
@@ -419,6 +530,16 @@ class _TheGamePageState extends State<TheGamePage> {
                 ),
               ),
             ),
+            // Text(bothPlayersWantRematch == true
+            //     ? "Both player wants a rematch"
+            //     : otherPlayerWantsRematch == true
+            //         ? "Other player wants a rematch"
+            //         : ""),
+            Text(whoWantsARematch == WhoWantsARematch.BOTH_PLAYERS
+                ? "Both players agreed. Continuing..."
+                : whoWantsARematch == WhoWantsARematch.OTHER_PLAYER
+                    ? "Other player wants a rematch"
+                    : ""),
             gameState == GameState.ENDED
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -431,7 +552,7 @@ class _TheGamePageState extends State<TheGamePage> {
                         margin: const EdgeInsets.all(5),
                         onPressed: () => context
                             .read<GameServices>()
-                            .rematchGame(context, gameData),
+                            .rematchGame(context, gameData, widget.gameId),
                       ),
                       appHomeButton(
                         title: "quit game",
@@ -439,9 +560,12 @@ class _TheGamePageState extends State<TheGamePage> {
                         onPressed: () =>
                             // ref pathano better,
                             // extra connection pool er dorkar nei
-                            context
-                                .read<GameServices>()
-                                .quitGame(context, widget.gameId, ref),
+                            //
+                            context.read<GameServices>().quitGame(
+                                  context,
+                                  widget.gameId,
+                                  gameData["old_game_id"],
+                                ),
                         padding: const EdgeInsets.all(15),
                         margin: const EdgeInsets.all(5),
                       )

@@ -14,18 +14,18 @@ import 'package:tictactoe/utils/Utils.dart';
 class ConfirmMatchPage extends StatefulWidget {
   // final GameType gameType;
   final String gameId;
-  final int who_joined;
-  final String name_who;
-  final String uid_who;
+  // final int who_joined;
+  // final String name_who;
+  // final String uid_who;
   final GameMatchType gameMatchType;
 
   const ConfirmMatchPage({
     super.key,
     // required this.gameType = GameType.ONLINE,
     required this.gameId,
-    required this.who_joined,
-    required this.name_who,
-    required this.uid_who,
+    // required this.who_joined,
+    // required this.name_who,
+    // required this.uid_who,
     required this.gameMatchType,
   });
 
@@ -84,7 +84,7 @@ class _ConfirmMatchPageState extends State<ConfirmMatchPage> {
         //     "Realtime event: ${event.snapshot.value} ${event.snapshot.value.runtimeType} ");
         if (event.snapshot.exists) {
           print(
-              "${event.snapshot.value} :: ${event.snapshot.value.runtimeType} :: :: ${event.snapshot}");
+              "[[manageRealtimeSubscriptionForFirstTime]] ${event.snapshot.value} :: ${event.snapshot.value.runtimeType} :: :: ${event.snapshot}");
           // check if value has the key
           if (event.snapshot.value == true) {
             // game started
@@ -93,15 +93,19 @@ class _ConfirmMatchPageState extends State<ConfirmMatchPage> {
                 // TheGamePage takes game id, user1 displayname, user2 di
 
                 return TheGamePage(
-                    // what we can do is,
-                    // on each round end, we can take the game data from here and save in firestore as GameData
-                    // on re-match, we can create new game from current game data and save this one to firestore as GameData
-                    // we can store the session number in the firestore sessions collection too. But, that can be done later
-                    // need to finish this one first.
-                    // for now, we will send the sessionGameNumber to next next pages until the new game.
-                    // finally destory the sessionGameNumber, for now of course
-                    gameId: widget.gameId.toString(),
-                    sessionGameNumber: 1);
+                  // what we can do is,
+                  // on each round end, we can take the game data from here and save in firestore as GameData
+                  // on re-match, we can create new game from current game data and save this one to firestore as GameData
+                  // we can store the session number in the firestore sessions collection too. But, that can be done later
+                  // need to finish this one first.
+                  // for now, we will send the sessionGameNumber to next next pages until the new game.
+                  // finally destory the sessionGameNumber, for now of course
+                  prevGameId: "",
+                  gameId: widget.gameId.toString(),
+                  sessionGameNumber: 1,
+                  player1Won: 0,
+                  player2Won: 0,
+                );
               },
             ));
           } else {
@@ -120,15 +124,12 @@ class _ConfirmMatchPageState extends State<ConfirmMatchPage> {
     // TODO: implement initState
     super.initState();
 
+    // No need to set, already set in the home page
+    // context.read<GameServices>().setPlayerName(widget.name_who);
+
     if (widget.gameMatchType == GameMatchType.FIRST_TIME) {
       manageRealtimeSubscriptionForFirstTime();
-
-      context.read<GameServices>().createRTGame(
-            gameId: widget.gameId,
-            who_joined: widget.who_joined,
-            name_who: widget.name_who,
-            uid_who: widget.uid_who,
-          );
+      context.read<GameServices>().createRTGame(gameId: widget.gameId);
 
       print(
           "[[DEBUG: First time match]] creating new game on realtime with game id: ${widget.gameId} ");
@@ -178,9 +179,10 @@ class _ConfirmMatchPageState extends State<ConfirmMatchPage> {
               children: [
                 Text("Rematch"),
                 Text(widget.gameId),
-                Text(widget.who_joined.toString()),
-                Text(widget.name_who),
-                Text(widget.uid_who),
+                Text(
+                    "Joining as ${context.read<GameServices>().playerJoiningAs.toString()}"),
+                Text(context.read<GameServices>().playerName),
+                Text(context.read<GameServices>().playerUID),
               ],
             ),
           ),
