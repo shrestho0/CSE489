@@ -151,15 +151,15 @@ class HomePage extends StatelessWidget {
             //   },
             //   child: const Text("Set Loading"),
             // ),
-            ElevatedButton(
-              child: Text("rematch-or-end-session"),
-              onPressed: () {
-                // push back to the last page
-                Navigator.popUntil(context, (route) => false);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const HomePage()));
-              },
-            )
+            // ElevatedButton(
+            //   child: Text("rematch-or-end-session"),
+            //   onPressed: () {
+            //     // push back to the last page
+            //     Navigator.popUntil(context, (route) => false);
+            //     Navigator.push(context,
+            //         MaterialPageRoute(builder: (context) => const HomePage()));
+            //   },
+            // )
           ],
         ),
       ),

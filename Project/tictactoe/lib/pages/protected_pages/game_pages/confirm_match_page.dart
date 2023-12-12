@@ -163,7 +163,7 @@ class _ConfirmMatchPageState extends State<ConfirmMatchPage> {
               children: [
                 Text(widget.gameId.toString()),
                 SizedBox(height: 20),
-                const Text("Match Found!!"),
+                const Text("waiting for match"),
                 const Text("Will Be Redirected!"),
               ],
             ),

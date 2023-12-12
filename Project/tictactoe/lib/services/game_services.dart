@@ -335,4 +335,135 @@ class GameServices extends ChangeNotifier {
     // and use it to show a SnackBar.
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
+  /// Aggregation
+  /// Leaderboard
+  Future<List<Map<String, dynamic>>> getLeaderboard(
+    String userId,
+  ) async {
+    // Add limit here
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    // find all users from UserData
+
+    QuerySnapshot userDataSnapshot =
+        await _firestore.collection('UserData').get();
+    QuerySnapshot gameHistorySnapshot =
+        await _firestore.collection('GameHistory').get();
+
+    List<Map<String, dynamic>> userDataList = [
+      // {
+      //   "uid": "oockTD2S9SNEpJ9G66fjpdmiiIs1",
+      //   'name': 'Player 1',
+      //   'total_wins': 100,
+      // },
+      // {
+      //   "uid": "Y0or8Oq0TdXJQtcg4bbbwbg6QNl2",
+      //   'name': 'Player 2',
+      //   'total_wins': 90,
+      // }
+    ];
+
+    // Iterate through each user document
+    for (var document in userDataSnapshot.docs) {
+      Map<String, dynamic> userData = document.data() as Map<String, dynamic>;
+      Map<String, dynamic> dataToAdd = {};
+      // Add user data to the user data list
+
+      dataToAdd["uid"] = userData["uid"] ?? "";
+      dataToAdd["name"] = userData["name"] ?? "";
+
+      dataToAdd["total_wins"] = 0;
+      // if (dataToAdd["uid"] != "") {
+      // find game history for this user
+      for (var gameHistoryDoc in gameHistorySnapshot.docs) {
+        Map<String, dynamic> gameHistoryData =
+            gameHistoryDoc.data() as Map<String, dynamic>;
+
+        if ((gameHistoryData["winner"] == 1 &&
+                gameHistoryData["player1_id"] == dataToAdd["uid"]) ||
+            (gameHistoryData["winner"] == 2 &&
+                gameHistoryData["player2_id"] == dataToAdd["uid"])) {
+          dataToAdd["total_wins"] += 1;
+        }
+        print("DEBUG: Game History Data: $gameHistoryData");
+      }
+      // }
+
+      userDataList.add(dataToAdd);
+    }
+
+    // sort the list
+    // rank will be index + 1
+    print("Data to be sent to Leaderboard: $userDataList");
+    return userDataList;
+  }
+
+  /// Personal Game Record
+  Future<List<Map<String, dynamic>>> getUserGameHistory(
+    String userId,
+  ) async {
+    // Add limit here
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+    try {
+      // Query GameHistory collection to get player1_id and player2_id
+      QuerySnapshot gameHistorySnapshot = await _firestore
+          .collection('GameHistory')
+          .where('player1_id', isEqualTo: userId)
+          .get();
+      QuerySnapshot gameHistorySnapshot2 = await _firestore
+          .collection('GameHistory')
+          .where('player2_id', isEqualTo: userId)
+          .get();
+
+      var gameHistorySnapshotMerged = [
+        gameHistorySnapshot2.docs,
+        gameHistorySnapshot.docs
+      ].expand((x) => x).toList();
+      print(gameHistorySnapshotMerged.length);
+
+      List<Map<String, dynamic>> gameHistoryList = [];
+
+      // Iterate through each game document
+      for (QueryDocumentSnapshot gameDoc in gameHistorySnapshotMerged) {
+        Map<String, dynamic> gameData = gameDoc.data() as Map<String, dynamic>;
+
+        // Get player1_id and player2_id from the game data
+        String otherPlayer = gameData['player1_id'];
+
+        // find other player name
+        if (gameData["player1_id"] == userId) {
+          otherPlayer = gameData['player2_id'];
+        } else if (gameData["player2_id"] == userId) {
+          otherPlayer = gameData['player1_id'];
+        }
+        // Query UserData collection to get names
+        QuerySnapshot userDataSnapshot = await _firestore
+            .collection('UserData')
+            .where(FieldPath.documentId, whereIn: [otherPlayer]).get();
+
+        userDataSnapshot.docs.forEach((userDataDoc) {
+          Map<String, dynamic> userData =
+              userDataDoc.data() as Map<String, dynamic>;
+          // Add user data to the game history list
+          gameHistoryList.add({
+            'gameData': gameData,
+            'otherPlayer': userData,
+          });
+        });
+      }
+
+      // sort gameHistoryList by gameData["server_end_time"]
+      gameHistoryList.sort((a, b) {
+        return (b['gameData']['server_end_time'] as Timestamp)
+            .compareTo((a['gameData']['server_end_time'] as Timestamp));
+      });
+
+      return gameHistoryList;
+    } catch (e) {
+      // Handle any errors
+      print('Error: $e');
+      return [];
+    }
+  }
 }

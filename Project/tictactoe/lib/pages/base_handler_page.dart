@@ -67,9 +67,14 @@ class _BaseHandlerState extends State<BaseHandler> {
   Widget build(BuildContext context) {
     if (!(_connectionStatus == ConnectivityResult.none)) {
       User? user = FirebaseAuth.instance.currentUser;
+
       if (user != null) {
-        FirebaseFirestore.instance.collection("UserStatus").doc(user.uid).set({
+        FirebaseFirestore.instance.collection("UserData").doc(user.uid).set({
+          "uid": user.uid,
+          "name": user.displayName ?? "",
           "isOnline": true,
+          // TODO :  update that in playing part too.
+          // Coming to homepage from anywhere will set isPlaying to false
           "isPlaying": false,
           "last_online_time": FieldValue.serverTimestamp(),
         });
