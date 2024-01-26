@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             someFreeSpace(height: 10),
             const Text(
-              "Online `tictactoe` game for cse470 project",
+              "Online `tictactoe` game for cse489 project",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,

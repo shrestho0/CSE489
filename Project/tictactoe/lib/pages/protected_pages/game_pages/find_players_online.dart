@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tictactoe/pages/protected_pages/game_pages/confirm_match_page.dart';
@@ -187,14 +187,14 @@ class _FindPlayersOnlineState extends State<FindPlayersOnline> {
                 // return
                 Column(
                   children: [
-                    const Text("Player found"),
-                    commonOutlineButton(
-                        text: "play with: `player007`",
-                        onPressed: () {
-                          Navigator.pushNamed(context, "/confirm-match");
+                    // const Text("Player found"),
+                    // commonOutlineButton(
+                    //     text: "play with: `player007`",
+                    //     onPressed: () {
+                    //       Navigator.pushNamed(context, "/confirm-match");
 
-                          // the game page
-                        }),
+                    //       // the game page
+                    //     }),
                     commonOutlineButton(
                         text: "cancel",
                         onPressed: () {

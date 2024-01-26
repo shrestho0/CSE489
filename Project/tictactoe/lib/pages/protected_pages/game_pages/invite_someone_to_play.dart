@@ -78,7 +78,7 @@ class _InviteSomeonePageState extends State<InviteSomeonePage> {
     }).then((value) {
       listenToInvitationChange(value.id);
     });
-    context.read<GameServices>().setPlayerJoiningAs(1);
+    // context.read<GameServices>().setPlayerJoiningAs(1);
 
     // TODO: Delete all old invitations
     // This also can be done manually using a cronjob

@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tictactoe/pages/protected_pages/home_page.dart';
+// import 'package:tictactoe/pages/protected_pages/home_page.dart';
 import 'package:tictactoe/services/game_services.dart';
 import 'package:tictactoe/utils/Constants.dart';
 import 'package:tictactoe/utils/Utils.dart';
@@ -63,6 +63,21 @@ class _TheGamePageState extends State<TheGamePage> {
 
   DatabaseReference? ref;
 
+  // State Mods
+  @override
+  void initState() {
+    // gameData["awaitClosing"] = false;
+    super.initState();
+
+    setState(() {
+      player1WonXX = widget.player1Won;
+      player2WonXX = widget.player2Won;
+      currentGameId = widget.gameId;
+    });
+
+    initRTConn();
+  }
+
   void initRTConn() {
     /// Jhamela hocche, set state shesh ee kora lagbe.
     /// set state ee jawar age condition check korte hobe if default ee true thakbe, user onno function ee jawar age false kore diye jabe
@@ -91,23 +106,6 @@ class _TheGamePageState extends State<TheGamePage> {
         WhoWantsARematch? whoWants;
 
         if (gameState == GameState.ENDED) {
-          // re_match_id
-          // if (gameData["re_match_id"] != null) {
-          //   print(
-          //       "Re-match id paisi, ekhon etake new game ee redirect korte hobe");
-
-          //   // update and delete korte hobe like quit game
-
-          //   // Navigator.pushReplacement(context, MaterialPageRoute(
-          //   //   builder: (context) {
-          //   //     // TheGamePage takes game id, user1 displayname, user2 di
-
-          //   //     return TheGamePage(
-          //   //         gameId: gameData["re_match_id"], sessionGameNumber: 1);
-          //   //   },
-          //   // ));
-          // }
-
           bool player1WantsRematch = false;
           bool player2WantsRematch = false;
 
@@ -144,11 +142,6 @@ class _TheGamePageState extends State<TheGamePage> {
                 : widget.player2Won;
 
             if (_gd["old_game_id"] != "") {
-///////////////
-              // THIS LINE WAS CHANGEDS
-              /// WAS WORKING HERE
-///////////////
-
               context
                   .read<GameServices>()
                   .deleteRTGameAndAddToGameHistory(_gd["old_game_id"]);
@@ -248,21 +241,6 @@ class _TheGamePageState extends State<TheGamePage> {
   }
 
   // We
-
-  // State Mods
-  @override
-  void initState() {
-    // gameData["awaitClosing"] = false;
-    super.initState();
-
-    setState(() {
-      player1WonXX = widget.player1Won;
-      player2WonXX = widget.player2Won;
-      currentGameId = widget.gameId;
-    });
-
-    initRTConn();
-  }
 
   @override
   void dispose() {

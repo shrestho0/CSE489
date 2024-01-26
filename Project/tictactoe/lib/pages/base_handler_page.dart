@@ -154,11 +154,6 @@ class _BaseHandlerState extends State<BaseHandler> {
   }
 
 // Utilities
-  void signOut() {
-    // print("user signing out ${FirebaseAuth.instance.currentUser.email}");
-    FirebaseAuth.instance.signOut();
-    //
-  }
 
   Future<void> initConnectivity() async {
     late ConnectivityResult result;

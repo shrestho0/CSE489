@@ -94,4 +94,10 @@ class BaseServices {
       // fuck it
     }
   }
+
+  void signOut() {
+    // print("user signing out ${FirebaseAuth.instance.currentUser.email}");
+    FirebaseAuth.instance.signOut();
+    //
+  }
 }

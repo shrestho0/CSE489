@@ -1,4 +1,7 @@
 
+https://shrestho.me/app-release.apk
+
+adb push '/home/shrestho/CSE489/Project/tictactoe/build/app/outputs/apk/release/app-release.apk' '/storage/emulated/0/'
 
 Final starts on December 26
 Project got strict deadline, there won't be any extension

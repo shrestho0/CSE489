@@ -95,7 +95,7 @@ class GameServices extends ChangeNotifier {
     DatabaseReference ref =
         FirebaseDatabase.instance.ref("games").child(gameId);
 
-    ref?.once().then((event) {
+    ref.once().then((event) {
       if (event.snapshot.value != null) {
         dynamic gameData = event.snapshot.value;
 
@@ -393,6 +393,9 @@ class GameServices extends ChangeNotifier {
     }
 
     // sort the list
+    userDataList.sort((a, b) {
+      return (b['total_wins'] as int).compareTo((a['total_wins'] as int));
+    });
     // rank will be index + 1
     print("Data to be sent to Leaderboard: $userDataList");
     return userDataList;
